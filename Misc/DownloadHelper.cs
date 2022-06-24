@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ReuploaderMod.VRChatApi;
-using ReuploaderToolForFriends;
+using RipperStoreReuploader;
 
 namespace ReuploaderMod.Misc
 {

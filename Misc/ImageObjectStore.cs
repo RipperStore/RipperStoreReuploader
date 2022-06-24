@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ReuploaderMod.VRChatApi;
 using ReuploaderMod.VRChatApi.Models;
-using ReuploaderToolForFriends;
+using RipperStoreReuploader;
 using ApiAvatar = ReuploaderMod.Models.ApiAvatar;
 
 namespace ReuploaderMod.Misc {

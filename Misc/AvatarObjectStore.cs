@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using ReuploaderMod.Models;
 using ReuploaderMod.VRChatApi;
 using ReuploaderMod.VRChatApi.Models;
-using ReuploaderToolForFriends;
+using RipperStoreReuploader;
 
 namespace ReuploaderMod.Misc {
     internal class AvatarObjectStore : FileObjectStore {

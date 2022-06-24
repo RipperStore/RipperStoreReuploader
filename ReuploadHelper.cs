@@ -12,7 +12,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ReuploaderToolForFriends
+namespace RipperStoreReuploader
 {
     internal class ReuploadHelper
     {
@@ -78,7 +78,7 @@ namespace ReuploaderToolForFriends
             switch ((int)request.StatusCode)
             {
                 case 201:
-                    Console.WriteLine("> Successfully placed in queue, waiting.. (this may take a few minutes)");
+                    Console.WriteLine("> Successfully placed in queue, waiting.. (this may take a few minutes)\n");
                     break;
                 case 400:
                     Console.WriteLine("| Invalid API Key / ID provided");

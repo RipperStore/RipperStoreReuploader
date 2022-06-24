@@ -1,6 +1,6 @@
 ﻿using ReuploaderMod.Misc;
 
-namespace ReuploaderToolForFriends
+namespace RipperStoreReuploader
 {
     internal class Program
     {
