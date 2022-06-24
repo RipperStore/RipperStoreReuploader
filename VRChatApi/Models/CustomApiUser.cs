@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Security.Policy;
 using Newtonsoft.Json;
-using ReuploaderMod.Misc;
+using Reuploader.Misc;
 using RipperStoreReuploader;
 
-namespace ReuploaderMod.VRChatApi.Models
+namespace Reuploader.VRChatApi.Models
 {
 
     public class CustomApiUser : CustomApiModel
@@ -260,7 +260,7 @@ namespace ReuploaderMod.VRChatApi.Models
             var apiUserResponse = await ApiClient.HttpFactory.GetResponseAsync(MakeRequestEndpoint() + $"/{id}" + ApiClient.GetApiKeyAsQuery() + ApiClient.GetOrganizationAsAdditionalQuery(), HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             if (!apiUserResponse.IsSuccessStatusCode)
             {
-                Console.WriteLine($"Status: {(int)apiUserResponse.StatusCode} {apiUserResponse.StatusCode}{Environment.NewLine}{await apiUserResponse.Content.ReadAsStringAsync()}");
+                //Console.WriteLine($"Status: {(int)apiUserResponse.StatusCode} {apiUserResponse.StatusCode}{Environment.NewLine}{await apiUserResponse.Content.ReadAsStringAsync()}");
                 ApiClient.ObjectStore["AuthCookie"] = null;
                 if (!string.IsNullOrEmpty(twoFactor))
                     ApiClient.ObjectStore["TwoFactorAuth"] = null;

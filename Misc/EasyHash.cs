@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReuploaderMod.Misc {
+namespace Reuploader.Misc {
     internal static class EasyHash {
         internal static byte[] GetMD5(byte[] input) {
             using var sha256 = MD5.Create();

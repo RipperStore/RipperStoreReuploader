@@ -10,10 +10,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using librsync.net;
-using ReuploaderMod.Misc;
-using ReuploaderMod.VRChatApi.Models;
+using Reuploader.Misc;
+using Reuploader.VRChatApi.Models;
 
-namespace ReuploaderMod.VRChatApi {
+namespace Reuploader.VRChatApi {
     public static class CustomApiFileHelper {
         private const int MultipartBufferSize = 10 * 1024 * 1024;
 

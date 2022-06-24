@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace ReuploaderMod.VRChatApi.Models {
+namespace Reuploader.VRChatApi.Models {
     public class CustomApi2FA : CustomApiModel {
         public CustomApi2FA(VRChatApiClient client) : base(client) { }
 

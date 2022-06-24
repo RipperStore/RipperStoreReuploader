@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReuploaderMod.VRChatApi.Models {
+namespace Reuploader.VRChatApi.Models {
     
     public class CustomAssetVersion {
         public int ApiVersion { get; set; }

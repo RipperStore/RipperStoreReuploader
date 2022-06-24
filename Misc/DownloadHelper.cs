@@ -8,10 +8,10 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ReuploaderMod.VRChatApi;
+using Reuploader.VRChatApi;
 using RipperStoreReuploader;
 
-namespace ReuploaderMod.Misc
+namespace Reuploader.Misc
 {
     internal static class DownloadHelper
     {

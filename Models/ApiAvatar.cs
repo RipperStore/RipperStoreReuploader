@@ -5,10 +5,10 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using ReuploaderMod.Misc;
-using ReuploaderMod.VRChatApi.Models;
+using Reuploader.Misc;
+using Reuploader.VRChatApi.Models;
 
-namespace ReuploaderMod.Models {
+namespace Reuploader.Models {
     public class ApiAvatar {
         [JsonProperty(PropertyName = "id")] public string Id { get; set; }
 

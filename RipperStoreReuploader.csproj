@@ -14,17 +14,11 @@
     <OutputPath>bin\x64\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AssetsTools.NET">
-      <HintPath>G:\UserFiles\source\repos\ReuploaderToolForFriends\Libs\AssetsTools.NET.dll</HintPath>
-    </Reference>
     <Reference Include="Blake2Sharp">
       <HintPath>G:\UserFiles\source\repos\ReuploaderToolForFriends\Libs\Blake2Sharp.dll</HintPath>
     </Reference>
     <Reference Include="librsync.net">
       <HintPath>G:\UserFiles\source\repos\ReuploaderToolForFriends\Libs\librsync.net.dll</HintPath>
-    </Reference>
-    <Reference Include="LZ4">
-      <HintPath>G:\UserFiles\source\repos\ReuploaderToolForFriends\Libs\LZ4.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

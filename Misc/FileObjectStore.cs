@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ReuploaderMod.VRChatApi;
+using Reuploader.VRChatApi;
 
-namespace ReuploaderMod.Misc {
+namespace Reuploader.Misc {
     internal abstract class FileObjectStore {
         private protected VRChatApiClient _apiClient;
         private protected string _path;

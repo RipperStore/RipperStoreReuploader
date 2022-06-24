@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReuploaderMod.VRChatApi {
+namespace Reuploader.VRChatApi {
     
     public class ObjectStore {
         private readonly Dictionary<string, object> _store;

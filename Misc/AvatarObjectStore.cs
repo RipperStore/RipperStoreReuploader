@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ReuploaderMod.Models;
-using ReuploaderMod.VRChatApi;
-using ReuploaderMod.VRChatApi.Models;
+using Reuploader.Models;
+using Reuploader.VRChatApi;
+using Reuploader.VRChatApi.Models;
 using RipperStoreReuploader;
 
-namespace ReuploaderMod.Misc {
+namespace Reuploader.Misc {
     internal class AvatarObjectStore : FileObjectStore {
         private string _UnityVersion;
         private bool _quest;

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace ReuploaderMod.VRChatApi.Models {
+namespace Reuploader.VRChatApi.Models {
     //
     public abstract class CustomApiModel {
         [JsonIgnore] public static AdminOrApiWritableOnlyExcluderContractResolver Aoawoecr = new AdminOrApiWritableOnlyExcluderContractResolver();

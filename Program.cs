@@ -1,4 +1,4 @@
-﻿using ReuploaderMod.Misc;
+﻿using Reuploader.Misc;
 
 namespace RipperStoreReuploader
 {
@@ -6,6 +6,7 @@ namespace RipperStoreReuploader
     {
         static void Main(string[] args)
         {
+
             DownloadHelper.Setup();
 
             new ReuploadHelper();

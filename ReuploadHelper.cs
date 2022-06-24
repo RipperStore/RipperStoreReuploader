@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
-using ReuploaderMod.Misc;
-using ReuploaderMod.Models;
-using ReuploaderMod.VRChatApi;
-using ReuploaderMod.VRChatApi.Models;
+using Reuploader.Misc;
+using Reuploader.Models;
+using Reuploader.VRChatApi;
+using Reuploader.VRChatApi.Models;
 using RipperStoreReuploader;
 using System;
 using System.Collections.Generic;
@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text;
 
 namespace RipperStoreReuploader
 {
@@ -31,6 +32,9 @@ namespace RipperStoreReuploader
 
         public ReuploadHelper()
         {
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.InputEncoding = Encoding.UTF8;
+
             apiClient = new VRChatApiClient(10, GenerateFakeMac());
 
             if (File.Exists("Config.json")) { Config = JsonConvert.DeserializeObject<Config>(File.ReadAllText("Config.json")); }
@@ -144,7 +148,7 @@ namespace RipperStoreReuploader
                 Console.WriteLine("> Trying to login with existing session (VRChat)");
                 customApiUser ??= apiClient.CustomApiUser.LoginWithExistingSession(Config.userID, Config.authCookie).Result;
 
-                if (customApiUser.Id == null)
+                if (customApiUser == null)
                 {
                     Config.userID = null; Config.authCookie = null;
                     Console.WriteLine("| Error, Unable to login with existing session (VRChat) \n");
@@ -159,7 +163,7 @@ namespace RipperStoreReuploader
             {
                 if (Config.username == null)
                 {
-                    Console.WriteLine("> VRChat Username: ");
+                    Console.WriteLine("> VRChat Username / E-Mail: ");
                     username = Console.ReadLine();
                     Console.WriteLine("");
                 }
@@ -295,8 +299,8 @@ namespace RipperStoreReuploader
                 Description = Name,
                 AssetUrl = avatarFile.FileUrl /*_assetFileUrl*/,
                 ImageUrl = imageFile.FileUrl /*_imageFileUrl*/,
-                UnityPackages = new List<ReuploaderMod.VRChatApi.Models.AvatarUnityPackage>() {
-                        new ReuploaderMod.VRChatApi.Models.AvatarUnityPackage() {
+                UnityPackages = new List<Reuploader.VRChatApi.Models.AvatarUnityPackage>() {
+                        new Reuploader.VRChatApi.Models.AvatarUnityPackage() {
                             Platform = "standalonewindows",
                             UnityVersion = UnityVersion
                         }
@@ -307,7 +311,7 @@ namespace RipperStoreReuploader
                 Created = new DateTime(0),
                 Updated = new DateTime(0),
                 ReleaseStatus = "private",
-                AssetVersion = new ReuploaderMod.VRChatApi.Models.AssetVersion()
+                AssetVersion = new Reuploader.VRChatApi.Models.AssetVersion()
                 {
                     UnityVersion = UnityVersion,
                     ApiVersion = avatar.ApiVersion

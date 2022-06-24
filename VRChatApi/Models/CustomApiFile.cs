@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace ReuploaderMod.VRChatApi.Models {
+namespace Reuploader.VRChatApi.Models {
     
     public class CustomApiFile : CustomApiModel {
         [JsonProperty("name")] public string Name { get; set; }

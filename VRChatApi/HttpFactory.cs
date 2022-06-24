@@ -10,9 +10,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using ReuploaderMod.VRChatApi.Models;
+using Reuploader.VRChatApi.Models;
 
-namespace ReuploaderMod.VRChatApi {
+namespace Reuploader.VRChatApi {
     public class HttpFactory {
         private static readonly HttpMethod _patchMethod = new HttpMethod("PATCH");
         private readonly HttpClient _httpClient;

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ReuploaderMod.VRChatApi;
-using ReuploaderMod.VRChatApi.Models;
+using Reuploader.VRChatApi;
+using Reuploader.VRChatApi.Models;
 using RipperStoreReuploader;
-using ApiAvatar = ReuploaderMod.Models.ApiAvatar;
+using ApiAvatar = Reuploader.Models.ApiAvatar;
 
-namespace ReuploaderMod.Misc {
+namespace Reuploader.Misc {
     internal class ImageObjectStore : FileObjectStore {
         private bool _isQuest;
         private string _UnityVersion;
