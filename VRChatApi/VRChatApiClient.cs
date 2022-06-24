@@ -11,9 +11,11 @@ using Newtonsoft.Json;
 using ReuploaderMod.Misc;
 using ReuploaderMod.VRChatApi.Models;
 
-namespace ReuploaderMod.VRChatApi {
-    
-    public class VRChatApiClient {
+namespace ReuploaderMod.VRChatApi
+{
+
+    public class VRChatApiClient
+    {
         public ObjectStore ObjectStore { get; set; }
 
         public CustomRemoteConfig CustomRemoteConfig { get; set; }
@@ -28,7 +30,8 @@ namespace ReuploaderMod.VRChatApi {
 
         public bool DebugHttp = false;
 
-        public VRChatApiClient(int objectStoreSize = 15, string hmac = "") {
+        public VRChatApiClient(int objectStoreSize = 15, string hmac = "")
+        {
             ObjectStore = new ObjectStore(objectStoreSize);
             Initialize(hmac);
 
@@ -39,33 +42,32 @@ namespace ReuploaderMod.VRChatApi {
             CustomApiFile = new CustomApiFile(this);
         }
 
-        private void Initialize(string hmac) {
+        private void Initialize(string hmac)
+        {
             ObjectStore["ApiUri"] = new Uri("https://api.vrchat.cloud/api/1/", UriKind.Absolute);
             ObjectStore["CookieContainer"] = new CookieContainer();
-            ObjectStore["HttpClientHandler"] = new HttpClientHandler() {
+            ObjectStore["HttpClientHandler"] = new HttpClientHandler()
+            {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                 UseCookies = true,
-                CookieContainer = (CookieContainer) ObjectStore["CookieContainer"],
-                //Proxy = new WebProxy("http://localhost:8866", false),
+                CookieContainer = (CookieContainer)ObjectStore["CookieContainer"],
                 UseProxy = false
-                //WindowsProxyUsePolicy = WindowsProxyUsePolicy.DoNotUseProxy,
-                //CookieUsePolicy = CookieUsePolicy.UseSpecifiedCookieContainer,
-                //EnableMultipleHttp2Connections = true
             };
-            ObjectStore["HttpClient"] = new HttpClient((HttpClientHandler) ObjectStore["HttpClientHandler"], true) {
-                BaseAddress = (Uri) ObjectStore["ApiUri"],
+            ObjectStore["HttpClient"] = new HttpClient((HttpClientHandler)ObjectStore["HttpClientHandler"], true)
+            {
+                BaseAddress = (Uri)ObjectStore["ApiUri"],
                 Timeout = TimeSpan.FromMinutes(90)
             };
 
-            HttpClient = (HttpClient) ObjectStore["HttpClient"];
+            HttpClient = (HttpClient)ObjectStore["HttpClient"];
 
             ObjectStore["HttpFactory"] = new HttpFactory(HttpClient);
-            HttpFactory = (HttpFactory) ObjectStore["HttpFactory"];
+            HttpFactory = (HttpFactory)ObjectStore["HttpFactory"];
 
             //if (string.IsNullOrEmpty(hmac))
             //    hmac = GetDeviceUniqueIdentifier();
             if (string.IsNullOrEmpty(hmac))
-                hmac = EasyHash.GetSHA1String(new byte[] {0, 1, 2, 3, 4});
+                hmac = EasyHash.GetSHA1String(new byte[] { 0, 1, 2, 3, 4 });
             var requestHeaders = HttpClient.DefaultRequestHeaders;
             requestHeaders.Clear();
             requestHeaders.UserAgent.ParseAdd("VRC.Core.BestHTTP");
@@ -77,60 +79,39 @@ namespace ReuploaderMod.VRChatApi {
             requestHeaders.Add("X-MacAddress", hmac);
         }
 
-        //private string GetDeviceUniqueIdentifier() {
-        //    var ret = string.Empty;
-
-        //    var concatStr = string.Empty;
-        //    try {
-        //        using var searcherBb = new ManagementObjectSearcher("SELECT * FROM Win32_BaseBoard");
-        //        foreach (var obj in searcherBb.Get())
-        //            concatStr += (string) obj.Properties["SerialNumber"].Value ?? string.Empty;
-
-        //        using var searcherBios = new ManagementObjectSearcher("SELECT * FROM Win32_BIOS");
-        //        foreach (var obj in searcherBios.Get())
-        //            concatStr += (string) obj.Properties["SerialNumber"].Value ?? string.Empty;
-
-        //        using var searcherOs = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
-        //        foreach (var obj in searcherOs.Get())
-        //            concatStr += (string) obj.Properties["SerialNumber"].Value ?? string.Empty;
-
-        //        using var sha1 = SHA1.Create();
-        //        ret =
-        //            string.Join("", sha1.ComputeHash(Encoding.UTF8.GetBytes(concatStr)).Select(b => b.ToString("x2")));
-        //    }
-        //    catch (Exception e) {
-        //        Console.WriteLine(e.ToString());
-        //    }
-
-        //    return ret;
-        //}
-
-        public string GetApiKey() {
-            return (string) ObjectStore["ApiKey"] ?? "";
+        public string GetApiKey()
+        {
+            return (string)ObjectStore["ApiKey"] ?? "";
         }
 
-        public string GetApiKeyAsQuery() {
+        public string GetApiKeyAsQuery()
+        {
             if (ObjectStore.ContainsKey("ApiKey"))
-                return $"?apiKey={(string) ObjectStore["ApiKey"]}";
+                return $"?apiKey={(string)ObjectStore["ApiKey"]}";
             return "";
         }
 
-        public string GetApiKeyAsAdditionalQuery() {
+        public string GetApiKeyAsAdditionalQuery()
+        {
             if (ObjectStore.ContainsKey("ApiKey"))
-                return $"&apiKey={(string) ObjectStore["ApiKey"]}";
+                return $"&apiKey={(string)ObjectStore["ApiKey"]}";
             return "";
         }
 
-        public string GetOrganizationAsQuery() {
+        public string GetOrganizationAsQuery()
+        {
             return "?organization=vrchat";
         }
 
-        public string GetOrganizationAsAdditionalQuery() {
+        public string GetOrganizationAsAdditionalQuery()
+        {
             return "&organization=vrchat";
         }
 
-        public async Task<string> Get(string uri) {
-            try {
+        public async Task<string> Get(string uri)
+        {
+            try
+            {
                 HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
                 var response = await HttpClient.GetAsync(uri).ConfigureAwait(false);
                 HttpClient.DefaultRequestHeaders.Remove("Content-Type");
@@ -143,7 +124,8 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return responseAsString;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 HttpClient.DefaultRequestHeaders.Remove("Content-Type");
             }
@@ -151,8 +133,10 @@ namespace ReuploaderMod.VRChatApi {
             return null;
         }
 
-        public async Task<T> Get<T>(string uri) where T : class {
-            try {
+        public async Task<T> Get<T>(string uri) where T : class
+        {
+            try
+            {
                 HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
                 var response = await HttpClient.GetAsync(uri).ConfigureAwait(false);
                 HttpClient.DefaultRequestHeaders.Remove("Content-Type");
@@ -165,7 +149,8 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return JsonConvert.DeserializeObject<T>(responseAsString);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 HttpClient.DefaultRequestHeaders.Remove("Content-Type");
             }
@@ -173,8 +158,10 @@ namespace ReuploaderMod.VRChatApi {
             return null;
         }
 
-        public async Task<string> Get(string uri, string parameters) {
-            try {
+        public async Task<string> Get(string uri, string parameters)
+        {
+            try
+            {
                 HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
                 var response = await HttpClient.GetAsync(uri + parameters).ConfigureAwait(false);
                 HttpClient.DefaultRequestHeaders.Remove("Content-Type");
@@ -187,7 +174,8 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return responseAsString;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 HttpClient.DefaultRequestHeaders.Remove("Content-Type");
             }
@@ -195,8 +183,10 @@ namespace ReuploaderMod.VRChatApi {
             return null;
         }
 
-        public async Task<T> Get<T>(string uri, string parameters) where T : class {
-            try {
+        public async Task<T> Get<T>(string uri, string parameters) where T : class
+        {
+            try
+            {
                 HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
                 var response = await HttpClient.GetAsync(uri + parameters).ConfigureAwait(false);
                 HttpClient.DefaultRequestHeaders.Remove("Content-Type");
@@ -209,7 +199,8 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return JsonConvert.DeserializeObject<T>(responseAsString);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 HttpClient.DefaultRequestHeaders.Remove("Content-Type");
             }
@@ -217,8 +208,10 @@ namespace ReuploaderMod.VRChatApi {
             return null;
         }
 
-        public async Task<string> Put(string uri, HttpContent content) {
-            try {
+        public async Task<string> Put(string uri, HttpContent content)
+        {
+            try
+            {
                 var response = await HttpClient.PutAsync(uri, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -229,15 +222,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return responseAsString;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<string> Put(HttpClient awsHttpClient, string uri, HttpContent content) {
-            try {
+        public async Task<string> Put(HttpClient awsHttpClient, string uri, HttpContent content)
+        {
+            try
+            {
                 var response = await awsHttpClient.PutAsync(uri, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -248,15 +244,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return responseAsString;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<string> Put(HttpClient awsHttpClient, string uri, HttpContent content, List<string> etags) {
-            try {
+        public async Task<string> Put(HttpClient awsHttpClient, string uri, HttpContent content, List<string> etags)
+        {
+            try
+            {
                 var response = await awsHttpClient.PutAsync(uri, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -265,20 +264,24 @@ namespace ReuploaderMod.VRChatApi {
                     throw new Exception("Banned!");
 
                 if (response.IsSuccessStatusCode)
-                    if (response.Headers.TryGetValues("ETag", out var etagsNew)) {
+                    if (response.Headers.TryGetValues("ETag", out var etagsNew))
+                    {
                         etags.AddRange(etagsNew);
                         return responseAsString;
                     }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<HttpResponseMessage> PutAsResponse(string uri, HttpContent content) {
-            try {
+        public async Task<HttpResponseMessage> PutAsResponse(string uri, HttpContent content)
+        {
+            try
+            {
                 var response = await HttpClient.PutAsync(uri, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -289,15 +292,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return response;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<T> Put<T>(string uri, HttpContent content) where T : class {
-            try {
+        public async Task<T> Put<T>(string uri, HttpContent content) where T : class
+        {
+            try
+            {
                 var response = await HttpClient.PutAsync(uri, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -308,15 +314,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return JsonConvert.DeserializeObject<T>(responseAsString);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<string> Put(string uri, string parameters, HttpContent content) {
-            try {
+        public async Task<string> Put(string uri, string parameters, HttpContent content)
+        {
+            try
+            {
                 var response = await HttpClient.PutAsync(uri + parameters, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -327,15 +336,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return responseAsString;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<string> Put(string uri, string parameters, HttpContent content, IEnumerable<string> etags) {
-            try {
+        public async Task<string> Put(string uri, string parameters, HttpContent content, IEnumerable<string> etags)
+        {
+            try
+            {
                 var response = await HttpClient.PutAsync(uri + parameters, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -347,15 +359,18 @@ namespace ReuploaderMod.VRChatApi {
                     if (response.Headers.TryGetValues("ETag", out etags))
                         return responseAsString;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<HttpResponseMessage> PutAsResponse(string uri, string parameters, HttpContent content) {
-            try {
+        public async Task<HttpResponseMessage> PutAsResponse(string uri, string parameters, HttpContent content)
+        {
+            try
+            {
                 var response = await HttpClient.PutAsync(uri + parameters, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -366,15 +381,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return response;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<T> Put<T>(string uri, string parameters, HttpContent content) where T : class {
-            try {
+        public async Task<T> Put<T>(string uri, string parameters, HttpContent content) where T : class
+        {
+            try
+            {
                 var response = await HttpClient.PutAsync(uri + parameters, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -385,15 +403,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return JsonConvert.DeserializeObject<T>(responseAsString);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<string> Post(string uri, HttpContent content) {
-            try {
+        public async Task<string> Post(string uri, HttpContent content)
+        {
+            try
+            {
                 var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -404,15 +425,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return responseAsString;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<T> Post<T>(string uri, HttpContent content) where T : class {
-            try {
+        public async Task<T> Post<T>(string uri, HttpContent content) where T : class
+        {
+            try
+            {
                 var response = await HttpClient.PostAsync(uri, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -423,15 +447,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return JsonConvert.DeserializeObject<T>(responseAsString);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<string> Post(string uri, string parameters, HttpContent content) {
-            try {
+        public async Task<string> Post(string uri, string parameters, HttpContent content)
+        {
+            try
+            {
                 var response = await HttpClient.PostAsync(uri + parameters, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -442,15 +469,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return responseAsString;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<T> Post<T>(string uri, string parameters, HttpContent content) where T : class {
-            try {
+        public async Task<T> Post<T>(string uri, string parameters, HttpContent content) where T : class
+        {
+            try
+            {
                 var response = await HttpClient.PostAsync(uri + parameters, content).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -461,15 +491,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return JsonConvert.DeserializeObject<T>(responseAsString);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<string> Delete(string uri) {
-            try {
+        public async Task<string> Delete(string uri)
+        {
+            try
+            {
                 var response = await HttpClient.DeleteAsync(uri).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -480,15 +513,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return responseAsString;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<T> Delete<T>(string uri) where T : class {
-            try {
+        public async Task<T> Delete<T>(string uri) where T : class
+        {
+            try
+            {
                 var response = await HttpClient.DeleteAsync(uri).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -499,15 +535,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return JsonConvert.DeserializeObject<T>(responseAsString);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<string> Delete(string uri, string parameters) {
-            try {
+        public async Task<string> Delete(string uri, string parameters)
+        {
+            try
+            {
                 var response = await HttpClient.DeleteAsync(uri + parameters).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -518,15 +557,18 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return responseAsString;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        public async Task<T> Delete<T>(string uri, string parameters) where T : class {
-            try {
+        public async Task<T> Delete<T>(string uri, string parameters) where T : class
+        {
+            try
+            {
                 var response = await HttpClient.DeleteAsync(uri + parameters).ConfigureAwait(false);
                 var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (DebugHttp)
@@ -537,14 +579,16 @@ namespace ReuploaderMod.VRChatApi {
                 if (response.IsSuccessStatusCode)
                     return JsonConvert.DeserializeObject<T>(responseAsString);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
             return null;
         }
 
-        private bool IsBanned(string responseString) {
+        private bool IsBanned(string responseString)
+        {
             return responseString.Contains("temporary ban") || responseString.Contains("permanently banned");
         }
     }

@@ -36,7 +36,6 @@ namespace ReuploaderMod.Misc {
 
         private void OnImageUploadSuccess(CustomApiFile file) {
             FileUrl = file.GetFileUrl();
-            Console.WriteLine($"Image uri: {FileUrl}");
         }
 
         private void OnImageUploadFailure(string error) {

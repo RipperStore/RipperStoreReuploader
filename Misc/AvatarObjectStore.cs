@@ -34,7 +34,6 @@ namespace ReuploaderMod.Misc {
 
         private void OnAvatarUploadSuccess(CustomApiFile file) {
             FileUrl = file.GetFileUrl();
-            Console.WriteLine($"Avatar uri: {FileUrl}");
         }
 
         private void OnAvatarUploadFailure(string error) {

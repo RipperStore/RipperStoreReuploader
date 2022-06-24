@@ -234,10 +234,10 @@ namespace ReuploaderMod.VRChatApi {
 
                     var res = await client.CustomApiFile.UploadFilePart(_awsHttpClient, fileRecord.Url, buffer, tempEtags).ConfigureAwait(false);
                     etags.AddRange(tempEtags);
-                    Console.WriteLine($"(MP) Upload progress: {((double)i / (double)partsLength) * 100}%");
+                    Console.WriteLine($"> (MP) Upload progress: {((double)i / (double)partsLength) * 100}%");
                 }
 
-                Console.WriteLine($"(MP) Upload progress: {((double)partsLength / (double)partsLength) * 100}%");
+                Console.WriteLine($"> (MP) Upload progress: {((double)partsLength / (double)partsLength) * 100}%");
 
                 newApiFile = await newApiFile.FinishUpload(type, etags).ConfigureAwait(false);
 

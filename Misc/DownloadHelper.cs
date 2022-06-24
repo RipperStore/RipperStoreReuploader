@@ -11,33 +11,34 @@ using System.Threading.Tasks;
 using ReuploaderMod.VRChatApi;
 using ReuploaderToolForFriends;
 
-namespace ReuploaderMod.Misc {
-    internal static class DownloadHelper {
+namespace ReuploaderMod.Misc
+{
+    internal static class DownloadHelper
+    {
         private static CancellationTokenSource _cancellationTokenSource;
         private static HttpClientHandler _httpClientHandler;
         //private static StandardSocketsHttpHandler _standardSocketsHttpHandler;
         private static HttpClient _httpClient;
         private static HttpFactory _httpFactory;
 
-        internal static CancellationToken CancellationToken {
+        internal static CancellationToken CancellationToken
+        {
             get => _cancellationTokenSource?.Token ?? CancellationToken.None;
         }
 
-        internal static HttpClient HttpClient {
+        internal static HttpClient HttpClient
+        {
             get => _httpClient;
         }
 
-        public static void Setup() {
+        public static void Setup()
+        {
             _cancellationTokenSource = new CancellationTokenSource();
-            _httpClientHandler = new HttpClientHandler() {
-                //Proxy = new WebProxy("http://localhost:8866", false),
+            _httpClientHandler = new HttpClientHandler()
+            {
                 UseProxy = false,
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             };
-            //_standardSocketsHttpHandler = new StandardSocketsHttpHandler() {
-            //    UseProxy = false,
-            //    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            //};
             _httpClient = new HttpClient(_httpClientHandler, true) { Timeout = TimeSpan.FromMinutes(90) };
             var requestHeaders = _httpClient.DefaultRequestHeaders;
             requestHeaders.Clear();
@@ -60,14 +61,16 @@ namespace ReuploaderMod.Misc {
         public static async Task<string> DownloadToRandomPathAsync(string uri, IProgress<double> progress = null) =>
             await _httpFactory.DownloadToRandomPathAsync(uri, CancellationToken, progress).ConfigureAwait(false);
 
-        public static void Cancel() {
+        public static void Cancel()
+        {
             _cancellationTokenSource.Cancel();
             Thread.Sleep(TimeSpan.FromMilliseconds(250));
             _cancellationTokenSource.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        public static void Cleanup() {
+        public static void Cleanup()
+        {
             _httpClient?.Dispose();
             _cancellationTokenSource?.Dispose();
         }
