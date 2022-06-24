@@ -21,8 +21,9 @@ namespace RipperStoreReuploader
         internal static string UnityVersion = "2019.4.31f1";
         internal static string ClientVersion = "2022.1.1p1-1170--Release";
         internal static string AvatarID = $"avtr_{Guid.NewGuid()}";
-        internal static string Name;
         internal static HttpClient _http = new HttpClient();
+        internal static string Name;
+        internal static string ident;
         internal static string queue_id;
 
         public static Config Config { get; set; }
@@ -45,24 +46,8 @@ namespace RipperStoreReuploader
 
             File.WriteAllText("Config.json", JsonConvert.SerializeObject(Config));
 
-            Console.WriteLine("> Enter the RipperStore ID (ident) of the Avatar you want to Reupload: ");
-            string ident = Console.ReadLine();
-            Console.WriteLine("");
-
-            Console.WriteLine("> Enter an Avatar Name: ");
-            Name = Console.ReadLine();
-            Console.WriteLine("");
-
-            if (Name.Length < 2 || Name.Length > 32)
-            {
-                Console.WriteLine("| Error, invalid Avatar Name provided");
-                Console.ReadLine();
-                return;
-            }
-
-            FriendlyName = Name;
-
-            SetUpQueue(Config.apiKey, ident, AvatarID);
+            while (!SetUpName()) { }
+            while (!SetUpQueue(Config.apiKey, AvatarID)) { }
 
             var vrcaPath = ReuploadQueue(queue_id);
             var imgPath = ImageDownload(Config.apiKey, ident);
@@ -75,8 +60,29 @@ namespace RipperStoreReuploader
             Console.Read();
         }
 
-        private void SetUpQueue(string apiKey, string ident, string avatarid)
+        private bool SetUpName()
         {
+            Console.WriteLine("> Enter any Avatar Name: ");
+            Name = Console.ReadLine();
+            Console.WriteLine("");
+
+            if (Name.Length < 2 || Name.Length > 32)
+            {
+                Console.WriteLine("| Error, invalid Avatar Name provided");
+                return false;
+            }
+
+            FriendlyName = Name;
+            return true;
+        }
+
+        private bool SetUpQueue(string apiKey, string avatarid)
+        {
+
+            Console.WriteLine("> Enter the RipperStore ID (ident) of the Avatar you want to Reupload: ");
+            ident = Console.ReadLine();
+            Console.WriteLine("");
+
             var request = _http.PostAsync($"https://worker.ripper.store/api/v1/hotswap-url?apiKey={apiKey}&ident={ident}&avatarid={avatarid}", null).Result;
 
             switch ((int)request.StatusCode)
@@ -85,31 +91,25 @@ namespace RipperStoreReuploader
                     Console.WriteLine("> Successfully placed in queue, waiting.. (this may take a few minutes)\n");
                     break;
                 case 400:
-                    Console.WriteLine("| Invalid API Key / ID provided");
-                    Console.Read();
-                    break;
+                    Console.WriteLine("| Invalid API Key / ID provided\n");
+                    return false;
                 case 401:
-                    Console.WriteLine("| Invalid API Key Provided, please check https://ripper.store/clientarea > Profile-Settings");
-                    Console.Read();
-                    break;
+                    Console.WriteLine("| Invalid API Key Provided, please check https://ripper.store/clientarea > Profile-Settings\n");
+                    return false;
                 case 402:
-                    Console.WriteLine("| You do now own the requested avatar, please purchase before hotswapping");
-                    Console.Read();
-                    break;
+                    Console.WriteLine("| You do not own the requested avatar, please purchase before hotswapping\n");
+                    return false;
                 case 404:
-                    Console.WriteLine("| Invalid ID (ident) Provided, ID must be last part of URL");
-                    Console.Read();
-                    break;
-                case 500:
-                    Console.WriteLine("| There was an Error (Queue), please try again later");
-                    Console.Read();
-                    break;
+                    Console.WriteLine("| Invalid ID (ident) Provided, ID must be last part of URL\n");
+                    return false;
                 default:
-                    break;
+                    Console.WriteLine("| There was an Error (Queue), please try again later\n");
+                    return false;
             }
 
             var _ = request.Content.ReadAsStringAsync().Result.Split('"');
             queue_id = string.Join("", _);
+            return true;
         }
         private bool SetUpApiKey()
         {
@@ -125,7 +125,7 @@ namespace RipperStoreReuploader
                 apiKey = Config.apiKey;
             }
 
-            var res = _http.GetAsync($"https://api.ripper.store/clientarea/credits/validate?apiKey={apiKey}").Result;
+            var res = _http.GetAsync($"https://api.ripper.store/api/v1/clientarea/credits/validate?apiKey={apiKey}").Result;
             if ((int)res.StatusCode == 200)
             {
                 Config.apiKey = apiKey;
@@ -275,7 +275,7 @@ namespace RipperStoreReuploader
         }
         private string GenerateFakeMac()
         {
-            Random rand = new();
+            Random rand = new Random();
             byte[] data = new byte[5];
             rand.NextBytes(data);
             string hmac = EasyHash.GetSHA1String(data);
