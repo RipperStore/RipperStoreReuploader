@@ -102,6 +102,9 @@ namespace RipperStoreReuploader
                 case 404:
                     Console.WriteLine("| Invalid ID (ident) Provided, ID must be last part of URL\n");
                     return false;
+                case 429:
+                    Console.WriteLine("| You are being Rate Limited, please try again later\n");
+                    return false;
                 default:
                     Console.WriteLine("| There was an Error (Queue), please try again later\n");
                     return false;
