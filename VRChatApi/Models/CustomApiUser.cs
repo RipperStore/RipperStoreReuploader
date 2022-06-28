@@ -237,8 +237,8 @@ namespace Reuploader.VRChatApi.Models
                     };
 
                     //File.WriteAllLines("auth.txt", list.ToArray());
-                    RipperStoreReuploader.ReuploadHelper.Config.userID = list[0];
-                    RipperStoreReuploader.ReuploadHelper.Config.authCookie = list[1];
+                    RipperStoreReuploader.Program.Config.userID = list[0];
+                    RipperStoreReuploader.Program.Config.authCookie = list[1];
                 }
             }
 

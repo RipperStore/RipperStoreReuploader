@@ -20,17 +20,9 @@ namespace RipperStoreReuploader
         internal static object FriendlyName = "";
         internal static string UnityVersion = "2019.4.31f1";
         internal static string ClientVersion = "2022.1.1p1-1170--Release";
-        internal static string AvatarID = $"avtr_{Guid.NewGuid()}";
-        internal static HttpClient _http = new HttpClient();
-        internal static string Name;
-        internal static string ident;
-        internal static string queue_id;
 
-        public static Config Config { get; set; }
 
-        private VRChatApiClient apiClient;
-        private CustomApiUser customApiUser;
-
+        /*
         public ReuploadHelper()
         {
             Console.OutputEncoding = Encoding.UTF8;
@@ -38,15 +30,13 @@ namespace RipperStoreReuploader
 
             apiClient = new VRChatApiClient(10, GenerateFakeMac());
 
-            if (File.Exists("Config.json")) { Config = JsonConvert.DeserializeObject<Config>(File.ReadAllText("Config.json")); }
-            else { Config = new Config() { apiKey = null, authCookie = null, password = null, username = null }; }
+            //if (File.Exists("Config.json")) { Config = JsonConvert.DeserializeObject<Config>(File.ReadAllText("Config.json")); }
+            //else { Config = new Config() { apiKey = null, authCookie = null, password = null, username = null }; }
 
-            while (!SetUpVRChat()) { }
-            while (!SetUpApiKey()) { }
+            //File.WriteAllText("Config.json", JsonConvert.SerializeObject(Config));
 
-            File.WriteAllText("Config.json", JsonConvert.SerializeObject(Config));
+            //while (!SetUpName()) { }
 
-            while (!SetUpName()) { }
             while (!SetUpQueue(Config.apiKey, AvatarID)) { }
 
             var vrcaPath = ReuploadQueue(queue_id);
@@ -60,148 +50,7 @@ namespace RipperStoreReuploader
             Console.Read();
         }
 
-        private bool SetUpName()
-        {
-            Console.WriteLine("> Enter any Avatar Name: ");
-            Name = Console.ReadLine();
-            Console.WriteLine("");
 
-            if (Name.Length < 2 || Name.Length > 32)
-            {
-                Console.WriteLine("| Error, invalid Avatar Name provided");
-                return false;
-            }
-
-            FriendlyName = Name;
-            return true;
-        }
-
-        private bool SetUpQueue(string apiKey, string avatarid)
-        {
-
-            Console.WriteLine("> Enter the RipperStore ID (ident) of the Avatar you want to Reupload: ");
-            ident = Console.ReadLine();
-            Console.WriteLine("");
-
-            var request = _http.PostAsync($"https://worker.ripper.store/api/v1/hotswap-url?apiKey={apiKey}&ident={ident}&avatarid={avatarid}", null).Result;
-
-            switch ((int)request.StatusCode)
-            {
-                case 201:
-                    Console.WriteLine("> Successfully placed in queue, waiting.. (this may take a few minutes)\n");
-                    break;
-                case 400:
-                    Console.WriteLine("| Invalid API Key / ID provided\n");
-                    return false;
-                case 401:
-                    Console.WriteLine("| Invalid API Key Provided, please check https://ripper.store/clientarea > Profile-Settings\n");
-                    return false;
-                case 402:
-                    Console.WriteLine("| You do not own the requested avatar, please purchase before hotswapping\n");
-                    return false;
-                case 404:
-                    Console.WriteLine("| Invalid ID (ident) Provided, ID must be last part of URL\n");
-                    return false;
-                case 429:
-                    Console.WriteLine("| You are being Rate Limited, please try again later\n");
-                    return false;
-                default:
-                    Console.WriteLine("| There was an Error (Queue), please try again later\n");
-                    return false;
-            }
-
-            var _ = request.Content.ReadAsStringAsync().Result.Split('"');
-            queue_id = string.Join("", _);
-            return true;
-        }
-        private bool SetUpApiKey()
-        {
-            string apiKey;
-
-            if (Config.apiKey == null)
-            {
-                Console.WriteLine("> RipperStore apiKey: ");
-                apiKey = Console.ReadLine();
-            }
-            else
-            {
-                apiKey = Config.apiKey;
-            }
-
-            var res = _http.GetAsync($"https://api.ripper.store/api/v1/clientarea/credits/validate?apiKey={apiKey}").Result;
-            if ((int)res.StatusCode == 200)
-            {
-                Config.apiKey = apiKey;
-                Console.WriteLine("> Successfully verified apiKey (RipperStore)\n");
-                return true;
-            }
-
-            Config.apiKey = null;
-            Console.WriteLine("| Error, invalid apiKey provided (RipperStore)\n");
-            return false;
-
-        }
-
-        private bool SetUpVRChat()
-        {
-            string username, password;
-
-            if (Config.userID != null && Config.authCookie != null)
-            {
-                Console.WriteLine("> Trying to login with existing session (VRChat)");
-                customApiUser ??= apiClient.CustomApiUser.LoginWithExistingSession(Config.userID, Config.authCookie).Result;
-
-                if (customApiUser == null)
-                {
-                    Config.userID = null; Config.authCookie = null;
-                    Console.WriteLine("| Error, Unable to login with existing session (VRChat) \n");
-                    return false;
-
-                }
-
-                Console.WriteLine("> Successfully logged in (VRChat)\n");
-                return true;
-            }
-            else
-            {
-                if (Config.username == null)
-                {
-                    Console.WriteLine("> VRChat Username / E-Mail: ");
-                    username = Console.ReadLine();
-                    Console.WriteLine("");
-                }
-                else
-                {
-                    username = Config.username;
-                }
-
-                if (Config.password == null)
-                {
-                    Console.WriteLine("> VRChat Password: ");
-                    password = Console.ReadLine();
-                    Console.WriteLine("");
-                }
-                else
-                {
-                    password = Config.password;
-                }
-
-                customApiUser ??= apiClient.CustomApiUser.Login(username, password, CustomApiUser.VerifyTwoFactorAuthCode).Result;
-
-                if (customApiUser.Id == null)
-                {
-                    Config.username = null; Config.password = null;
-                    Console.WriteLine("| Error, Unable to login, invalid credentials\n");
-                    return false;
-
-                }
-
-                Config.username = username; Config.password = password;
-                Console.WriteLine("> Successfully logged in (VRChat)\n");
-                return true;
-            }
-
-        }
         private string ReuploadQueue(string queue_id)
         {
             string status = "";
@@ -276,14 +125,6 @@ namespace RipperStoreReuploader
 
             return _imgPath;
         }
-        private string GenerateFakeMac()
-        {
-            Random rand = new Random();
-            byte[] data = new byte[5];
-            rand.NextBytes(data);
-            string hmac = EasyHash.GetSHA1String(data);
-            return hmac;
-        }
 
         internal async Task ReUploadAvatarAsync(string Name, string AssetPath, string ImagePath, string avatarId)
         {
@@ -300,8 +141,8 @@ namespace RipperStoreReuploader
                 Id = avatarId,
                 Name = Name,
                 Description = Name,
-                AssetUrl = avatarFile.FileUrl /*_assetFileUrl*/,
-                ImageUrl = imageFile.FileUrl /*_imageFileUrl*/,
+                AssetUrl = avatarFile.FileUrl,
+                ImageUrl = imageFile.FileUrl,
                 UnityPackages = new List<Reuploader.VRChatApi.Models.AvatarUnityPackage>() {
                         new Reuploader.VRChatApi.Models.AvatarUnityPackage() {
                             Platform = "standalonewindows",
@@ -336,10 +177,7 @@ namespace RipperStoreReuploader
             //Console.WriteLine("Job Done!");
         }
 
-        public class Queue
-        {
-            public string status { get; set; }
-            public string download { get; set; }
-        }
+        */
+
     }
 }
