@@ -20,43 +20,11 @@ namespace RipperStoreReuploader
         internal static object FriendlyName = "";
         internal static string UnityVersion = "2019.4.31f1";
         internal static string ClientVersion = "2022.1.1p1-1170--Release";
+        internal static VRChatApiClient apiClient;
+        internal static CustomApiUser customApiUser;
 
-
-        /*
-        public ReuploadHelper()
+        internal static async Task ReUploadAvatarAsync(string Name, string AssetPath, string ImagePath, string avatarId)
         {
-            Console.OutputEncoding = Encoding.UTF8;
-            Console.InputEncoding = Encoding.UTF8;
-
-            apiClient = new VRChatApiClient(10, GenerateFakeMac());
-
-            //if (File.Exists("Config.json")) { Config = JsonConvert.DeserializeObject<Config>(File.ReadAllText("Config.json")); }
-            //else { Config = new Config() { apiKey = null, authCookie = null, password = null, username = null }; }
-
-            //File.WriteAllText("Config.json", JsonConvert.SerializeObject(Config));
-
-            //while (!SetUpName()) { }
-
-            while (!SetUpQueue(Config.apiKey, AvatarID)) { }
-
-            var vrcaPath = ReuploadQueue(queue_id);
-            var imgPath = ImageDownload(Config.apiKey, ident);
-
-            Console.WriteLine("> Starting Reupload\n");
-
-            ReUploadAvatarAsync(Name, vrcaPath, imgPath, AvatarID).Wait();
-
-            Console.WriteLine($"> Done Reuploading ({Name})");
-            Console.Read();
-        }
-
-
-
-
-        internal async Task ReUploadAvatarAsync(string Name, string AssetPath, string ImagePath, string avatarId)
-        {
-            //$"avtr_{Guid.NewGuid()}";
-
             ApiAvatar avatar = new ApiAvatar();
             var avatarFile = new AvatarObjectStore(apiClient, UnityVersion, AssetPath);
             await avatarFile.Reupload().ConfigureAwait(false);
@@ -100,11 +68,10 @@ namespace RipperStoreReuploader
                 Console.WriteLine("Unable to get unity package from response");
                 return;
             }
-            //Console.WriteLine($"Avatar upload {newAvatar.Name} successful! (Id: {newAvatar.Id}, Platform: {newAvatar.UnityPackages.First().Platform})");
-            //Console.WriteLine("Job Done!");
-        }
 
-        */
+            Console.WriteLine($"{Misc.Functions.prefix}successfully upload Avatar: {newAvatar.Name}");
+            Misc.Functions.Close();
+        }
 
     }
 }

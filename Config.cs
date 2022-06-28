@@ -8,5 +8,6 @@ namespace RipperStoreReuploader
         public string authCookie { get; set; }
         public string userID { get; set; }
         public string apiKey { get; set; }
+        public string twoFactor { get; set; }
     }
 }

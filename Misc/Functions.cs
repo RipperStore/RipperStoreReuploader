@@ -5,6 +5,7 @@ using Reuploader.VRChatApi.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -19,10 +20,10 @@ namespace RipperStoreReuploader.Misc
         internal static string prefix = "> ";
         internal static string errorPrefix = "!! ";
         internal static string ident;
+        internal static string vrcaPath;
+        internal static string imgPath;
 
         internal static Config Config { get; set; }
-        internal static VRChatApiClient apiClient;
-        internal static CustomApiUser customApiUser;
         internal static HttpClient _http = new HttpClient();
         internal static Queue _queue = new Queue();
 
@@ -43,6 +44,7 @@ namespace RipperStoreReuploader.Misc
                     SetUpReuploaderQueue(avatarID);
                     WaitForReuploaderQueue();
                     ImageDownload(false);
+                    ReuploadHelper.ReUploadAvatarAsync(avatarName, vrcaPath, imgPath, avatarID).Wait();
                     break;
                 case 1:
                     Clear();
@@ -51,6 +53,7 @@ namespace RipperStoreReuploader.Misc
                     SetUpReuploaderQueue(avatarID);
                     WaitForReuploaderQueue();
                     ImageDownload(true);
+                    ReuploadHelper.ReUploadAvatarAsync(avatarName, vrcaPath, imgPath, avatarID).Wait();
                     break;
                 case 2:
                     Clear();
@@ -67,15 +70,24 @@ namespace RipperStoreReuploader.Misc
         }
         internal static void InitializeConfig(bool resetConfig, bool saveConfig)
         {
-            if (resetConfig) { File.Delete("Config.json"); Config = new Config() { username = null, password = null, authCookie = null, userID = null, apiKey = null }; };
+            if (resetConfig)
+            {
+                File.Delete("Config.json");
+                ReuploadHelper.customApiUser = null;
+                ReuploadHelper.apiClient = null;
+
+            };
             if (saveConfig) File.WriteAllText("Config.json", JsonConvert.SerializeObject(Config)); ;
 
             if (File.Exists("Config.json")) { Config = JsonConvert.DeserializeObject<Config>(File.ReadAllText("Config.json")); }
             else { Config = new Config() { username = null, password = null, authCookie = null, userID = null, apiKey = null }; }
 
-            Console.WriteLine(Config.username);
-            Console.WriteLine(Config.username);
-
+        }
+        internal static void Close()
+        {
+            Console.WriteLine($"\n{prefix}press any key to exit");
+            Console.ReadKey();
+            Environment.Exit(0);
         }
         internal static void SetUpReuploaderQueue(string avatarid)
         {
@@ -134,7 +146,7 @@ namespace RipperStoreReuploader.Misc
                 {
                     Program.isWaiting = false;
                     Console.WriteLine($"{errorPrefix}There was an Error (VRCA), please try again later");
-                    throw new Exception();
+                    Close();
                 };
 
                 _queue = JsonConvert.DeserializeObject<List<Queue>>(request.Content.ReadAsStringAsync().Result)[0];
@@ -154,7 +166,7 @@ namespace RipperStoreReuploader.Misc
                 {
                     Program.isWaiting = false;
                     Console.WriteLine($"{errorPrefix}There was an Error (VRCA), please try again later");
-                    throw new Exception();
+                    Close();
                 }
 
             } while (status != "done");
@@ -175,7 +187,7 @@ namespace RipperStoreReuploader.Misc
             string _vrcaPath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName() + ".vrca");
             File.WriteAllBytes(_vrcaPath, _vrca);
 
-            Program.vrcaPath = _vrcaPath;
+            vrcaPath = _vrcaPath;
             Console.WriteLine($"{prefix}VRCA downloaded");
 
         }
@@ -201,17 +213,25 @@ namespace RipperStoreReuploader.Misc
                 if ((int)_imgRequest.StatusCode != 200)
                 {
                     Console.WriteLine($"{errorPrefix}There was an Error (Image DL), please try again later");
-                    if (!useCustomImage) throw new Exception();
+                    if (!useCustomImage) Close();
                 };
 
                 byte[] _img = _imgRequest.Content.ReadAsByteArrayAsync().Result;
                 string _imgPath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName() + ".png");
                 File.WriteAllBytes(_imgPath, _img);
 
-                Console.WriteLine($"{prefix}Image downloaded");
+                if (!IsImage(File.OpenRead(_imgPath)))
+                {
+                    Console.WriteLine($"{errorPrefix}Invalid Image provided, try something else");
+                }
+                else
+                {
 
-                Program.imgPath = _imgPath;
-                success = true;
+                    Console.WriteLine($"{prefix}Image downloaded");
+
+                    imgPath = _imgPath;
+                    success = true;
+                }
 
             } while (!success);
         }
@@ -230,9 +250,10 @@ namespace RipperStoreReuploader.Misc
                     Console.WriteLine($"{prefix}Please enter your VRChat Password:");
                     password = ReadLine();
 
-                    customApiUser ??= apiClient.CustomApiUser.Login(username, password, CustomApiUser.VerifyTwoFactorAuthCode).Result;
+                    ReuploadHelper.apiClient = new VRChatApiClient(10, GenerateFakeMac());
+                    ReuploadHelper.customApiUser ??= ReuploadHelper.apiClient.CustomApiUser.Login(username, password, CustomApiUser.VerifyTwoFactorAuthCode).Result;
 
-                    if (customApiUser == null || customApiUser.Id == null)
+                    if (ReuploadHelper.customApiUser == null || ReuploadHelper.customApiUser.Id == null)
                     {
                         Console.WriteLine($"{errorPrefix}Error, Unable to login: invalid credentials");
                     }
@@ -240,6 +261,7 @@ namespace RipperStoreReuploader.Misc
                     {
                         Config.username = username; Config.password = password;
                         Console.WriteLine($"{prefix}Successfully logged in (VRChat)");
+
                         loggedIn = true;
                     }
                 }
@@ -247,9 +269,10 @@ namespace RipperStoreReuploader.Misc
                 {
                     Console.WriteLine($"{prefix}logging in with existing session (VRChat)");
 
-                    customApiUser ??= apiClient.CustomApiUser.LoginWithExistingSession(Config.userID, Config.authCookie, null).Result;
+                    ReuploadHelper.apiClient = new VRChatApiClient(10, GenerateFakeMac());
+                    ReuploadHelper.customApiUser ??= ReuploadHelper.apiClient.CustomApiUser.LoginWithExistingSession(Config.userID, Config.authCookie, null).Result;
 
-                    if (customApiUser == null || customApiUser.Id == null)
+                    if (ReuploadHelper.customApiUser == null || ReuploadHelper.customApiUser.Id == null)
                     {
                         Config.userID = null; Config.authCookie = null;
                         Console.WriteLine($"{errorPrefix}Error, Unable to login with existing session (VRChat)");
@@ -304,6 +327,7 @@ namespace RipperStoreReuploader.Misc
                 else
                 {
                     success = true;
+                    ReuploadHelper.FriendlyName = avatarName;
                 }
             } while (!success);
         }
@@ -347,6 +371,30 @@ namespace RipperStoreReuploader.Misc
                 _i++;
                 Thread.Sleep(20);
             }
+        }
+        internal static bool IsImage(Stream stream)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+
+            List<string> jpg = new List<string> { "FF", "D8" };
+            List<string> png = new List<string> { "89", "50", "4E", "47", "0D", "0A", "1A", "0A" };
+            List<List<string>> imgTypes = new List<List<string>> { jpg, png };
+
+            List<string> bytesIterated = new List<string>();
+
+            for (int i = 0; i < 8; i++)
+            {
+                string bit = stream.ReadByte().ToString("X2");
+                bytesIterated.Add(bit);
+
+                bool isImage = imgTypes.Any(img => !img.Except(bytesIterated).Any());
+                if (isImage)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
         internal class Queue
         {

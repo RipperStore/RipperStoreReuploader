@@ -9,8 +9,6 @@ namespace RipperStoreReuploader
 {
     internal class Program
     {
-        public static string vrcaPath;
-        public static string imgPath;
         public static bool isWaiting = false;
 
         static void Main(string[] args)
@@ -18,7 +16,7 @@ namespace RipperStoreReuploader
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            DownloadHelper.Setup(); apiClient = new VRChatApiClient(10, GenerateFakeMac());
+            DownloadHelper.Setup();
 
             //Load Config
             InitializeConfig(false, false);
@@ -30,9 +28,6 @@ namespace RipperStoreReuploader
             InitializeConfig(false, true);
 
             DisplayMenu();
-
-            Console.WriteLine(vrcaPath);
-            Console.WriteLine(imgPath);
 
             Read();
         }
