@@ -97,7 +97,6 @@ namespace Reuploader.VRChatApi.Models
             else
             {
                 throw new NullReferenceException("Found no complete unity package or asset version");
-                return null;
             }
             avatarDict["created_at"] = caa.Created;
             avatarDict["updated_at"] = caa.Updated;
@@ -133,7 +132,6 @@ namespace Reuploader.VRChatApi.Models
             else
             {
                 throw new NullReferenceException("Found no complete unity package or asset version");
-                return null;
             }
             avatarDict["created_at"] = caa.Created;
             avatarDict["updated_at"] = caa.Updated;
