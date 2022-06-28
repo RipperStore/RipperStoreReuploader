@@ -12,9 +12,12 @@ using System.Threading.Tasks;
 using librsync.net;
 using Reuploader.Misc;
 using Reuploader.VRChatApi.Models;
+using RipperStoreReuploader;
 
-namespace Reuploader.VRChatApi {
-    public static class CustomApiFileHelper {
+namespace Reuploader.VRChatApi
+{
+    public static class CustomApiFileHelper
+    {
         private const int MultipartBufferSize = 10 * 1024 * 1024;
 
         private static byte[] _fileAsBytes;
@@ -28,7 +31,8 @@ namespace Reuploader.VRChatApi {
 
         public static CancellationToken CancellationToken => _cancellationTokenSource?.Token ?? CancellationToken.None;
 
-        static CustomApiFileHelper() {
+        static CustomApiFileHelper()
+        {
             //_handler = new HttpClientHandler() {
             //    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             //    UseProxy = false
@@ -38,14 +42,17 @@ namespace Reuploader.VRChatApi {
             //};
         }
 
-        public static async Task<bool> UploadFile(VRChatApiClient client, string fileName, string friendlyName, string existingId = "", bool cleanUp = false, Action<CustomApiFile> onSuccess = null, Action<string> onFailure = null) {
-            try {
+        public static async Task<bool> UploadFile(VRChatApiClient client, string fileName, string friendlyName, string existingId = "", bool cleanUp = false, Action<CustomApiFile> onSuccess = null, Action<string> onFailure = null)
+        {
+            try
+            {
                 Reset();
 
                 _fileAsBytes = File.ReadAllBytes(fileName);
 
                 var sigFileName = await CreateSignatureFile(fileName).ConfigureAwait(false);
-                _fileMetadata = new CustomApiFile.FileMetadata() {
+                _fileMetadata = new CustomApiFile.FileMetadata()
+                {
                     FileMD5 = GetFileMD5AsBase64(),
                     FileSizeInBytes = GetLength(_fileAsBytes),
                     SignatureMD5 = GetSignatureMD5AsBase64(),
@@ -67,7 +74,8 @@ namespace Reuploader.VRChatApi {
                 var fileDesc = newApiFile.GetFileDescriptor(newApiFile.GetLatestVersionNumber(), fdt);
 
                 var successFile = false;
-                switch (fileDesc.Category) {
+                switch (fileDesc.Category)
+                {
                     case CustomApiFile.Category.Simple:
                         successFile = await SingleFileUpload(client, newApiFile, ext, Convert.FromBase64String(_fileMetadata.FileMD5), _fileAsBytes, fdt).ConfigureAwait(false);
                         break;
@@ -86,7 +94,8 @@ namespace Reuploader.VRChatApi {
                 fileDesc = newApiFile.GetFileDescriptor(newApiFile.GetLatestVersionNumber(), fdt);
 
                 var successSig = false;
-                switch (fileDesc.Category) {
+                switch (fileDesc.Category)
+                {
                     case CustomApiFile.Category.Simple:
                         successSig = await SingleFileUpload(client, newApiFile, ext, Convert.FromBase64String(_fileMetadata.SignatureMD5), _sigFileAsBytes, fdt).ConfigureAwait(false);
                         break;
@@ -108,7 +117,9 @@ namespace Reuploader.VRChatApi {
 
                 return true;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
+                Program.isWaiting = false;
                 Console.WriteLine(ex.ToString());
                 onFailure?.Invoke(ex.ToString());
             }
@@ -116,14 +127,17 @@ namespace Reuploader.VRChatApi {
             return false;
         }
 
-        public static async Task<(bool successful, CustomApiFile file)> UploadFile(VRChatApiClient client, string fileName, string friendlyName, string existingId = "", bool cleanUp = false) {
-            try {
+        public static async Task<(bool successful, CustomApiFile file)> UploadFile(VRChatApiClient client, string fileName, string friendlyName, string existingId = "", bool cleanUp = false)
+        {
+            try
+            {
                 Reset();
 
                 _fileAsBytes = File.ReadAllBytes(fileName);
 
                 var sigFileName = await CreateSignatureFile(fileName).ConfigureAwait(false);
-                _fileMetadata = new CustomApiFile.FileMetadata() {
+                _fileMetadata = new CustomApiFile.FileMetadata()
+                {
                     FileMD5 = GetFileMD5AsBase64(),
                     FileSizeInBytes = GetLength(_fileAsBytes),
                     SignatureMD5 = GetSignatureMD5AsBase64(),
@@ -145,7 +159,8 @@ namespace Reuploader.VRChatApi {
                 var fileDesc = newApiFile.GetFileDescriptor(newApiFile.GetLatestVersionNumber(), fdt);
 
                 var successFile = false;
-                switch (fileDesc.Category) {
+                switch (fileDesc.Category)
+                {
                     case CustomApiFile.Category.Simple:
                         successFile = await SingleFileUpload(client, newApiFile, ext, Convert.FromBase64String(_fileMetadata.FileMD5), _fileAsBytes, fdt).ConfigureAwait(false);
                         break;
@@ -164,7 +179,8 @@ namespace Reuploader.VRChatApi {
                 fileDesc = newApiFile.GetFileDescriptor(newApiFile.GetLatestVersionNumber(), fdt);
 
                 var successSig = false;
-                switch (fileDesc.Category) {
+                switch (fileDesc.Category)
+                {
                     case CustomApiFile.Category.Simple:
                         successSig = await SingleFileUpload(client, newApiFile, ext, Convert.FromBase64String(_fileMetadata.SignatureMD5), _sigFileAsBytes, fdt).ConfigureAwait(false);
                         break;
@@ -183,34 +199,43 @@ namespace Reuploader.VRChatApi {
                     Cleanup(fileName, sigFileName);
 
                 return (true, newApiFile);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex.ToString());
             }
 
             return default;
         }
 
-        public static async Task<(CustomApiFile, CustomApiFile)> UploadAssetBundleAndImage(VRChatApiClient client, string assetBundlePath, string imagePath, string friendlyName, string assetBundleId = "", string imageId = "") {
-            try {
+        public static async Task<(CustomApiFile, CustomApiFile)> UploadAssetBundleAndImage(VRChatApiClient client, string assetBundlePath, string imagePath, string friendlyName, string assetBundleId = "", string imageId = "")
+        {
+            try
+            {
                 CustomApiFile assetBundleFile = null;
                 if (!await UploadFile(client, assetBundlePath, string.Format(friendlyName, "Asset bundle"), assetBundleId, false,
-                                      file => {
+                                      file =>
+                                      {
                                           assetBundleFile = file;
-                                      }, Console.WriteLine).ConfigureAwait(false)) {
+                                      }, Console.WriteLine).ConfigureAwait(false))
+                {
                     return default;
                 }
 
                 CustomApiFile imageFile = null;
                 if (!await UploadFile(client, imagePath, string.Format(friendlyName, "Image"), imageId, false,
-                                      file => {
+                                      file =>
+                                      {
                                           imageFile = file;
-                                      }, Console.WriteLine).ConfigureAwait(false)) {
+                                      }, Console.WriteLine).ConfigureAwait(false))
+                {
                     return default;
                 }
 
                 return (assetBundleFile, imageFile);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
@@ -219,13 +244,16 @@ namespace Reuploader.VRChatApi {
 
         private static async Task<bool> MultipartFileUpload(VRChatApiClient client, CustomApiFile newApiFile,
                                                             byte[] data,
-                                                            CustomApiFile.Version.FileDescriptor.Type type) {
-            try {
+                                                            CustomApiFile.Version.FileDescriptor.Type type)
+        {
+            try
+            {
                 using var memoryStream = new MemoryStream(data);
 
                 var etags = new List<string>();
-                var partsLength = (int)Math.Ceiling((double) data.Length / (double) MultipartBufferSize) + 1;
-                for (var i = 1; i < partsLength; i++) {
+                var partsLength = (int)Math.Ceiling((double)data.Length / (double)MultipartBufferSize) + 1;
+                for (var i = 1; i < partsLength; i++)
+                {
                     var buffer = new byte[i == partsLength - 1 ? memoryStream.Length - memoryStream.Position : MultipartBufferSize];
                     var bytesRead = await memoryStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
 
@@ -234,16 +262,17 @@ namespace Reuploader.VRChatApi {
 
                     var res = await client.CustomApiFile.UploadFilePart(_awsHttpClient, fileRecord.Url, buffer, tempEtags).ConfigureAwait(false);
                     etags.AddRange(tempEtags);
-                    Console.WriteLine($"> (MP) Upload progress: {((double)i / (double)partsLength) * 100}%");
+                    //Console.WriteLine($"> (MP) Upload progress: {((double)i / (double)partsLength) * 100}%");
                 }
 
-                Console.WriteLine($"> (MP) Upload progress: {((double)partsLength / (double)partsLength) * 100}%");
+                //Console.WriteLine($"> (MP) Upload progress: {((double)partsLength / (double)partsLength) * 100}%");
 
                 newApiFile = await newApiFile.FinishUpload(type, etags).ConfigureAwait(false);
 
                 return true;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
             }
 
@@ -253,8 +282,10 @@ namespace Reuploader.VRChatApi {
 
         private static async Task<bool> SingleFileUpload(VRChatApiClient client, CustomApiFile newApiFile, string ext,
                                                          string md5AsBase64, byte[] data,
-                                                         CustomApiFile.Version.FileDescriptor.Type type) {
-            try {
+                                                         CustomApiFile.Version.FileDescriptor.Type type)
+        {
+            try
+            {
                 var fileRecord = await newApiFile.StartSimpleUpload(type).ConfigureAwait(false);
 
                 var res = await client.CustomApiFile.UploadFile(_awsHttpClient, fileRecord.Url, GetMimeTypeFromExtension(ext), md5AsBase64, data).ConfigureAwait(false);
@@ -263,7 +294,8 @@ namespace Reuploader.VRChatApi {
 
                 return true;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
             }
 
@@ -272,8 +304,10 @@ namespace Reuploader.VRChatApi {
 
         private static async Task<bool> SingleFileUpload(VRChatApiClient client, CustomApiFile newApiFile, string ext,
                                                          byte[] md5AsBase64, byte[] data,
-                                                         CustomApiFile.Version.FileDescriptor.Type type) {
-            try {
+                                                         CustomApiFile.Version.FileDescriptor.Type type)
+        {
+            try
+            {
                 var fileRecord = await newApiFile.StartSimpleUpload(type).ConfigureAwait(false);
 
                 var res = await client.CustomApiFile.UploadFile(_awsHttpClient, fileRecord.Url, GetMimeTypeFromExtension(ext), md5AsBase64, data).ConfigureAwait(false);
@@ -281,14 +315,17 @@ namespace Reuploader.VRChatApi {
                 newApiFile = await newApiFile.FinishUpload(type).ConfigureAwait(false);
 
                 return true;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
             }
 
             return false;
         }
 
-        public static string GetMimeTypeFromExtension(string extension) {
+        public static string GetMimeTypeFromExtension(string extension)
+        {
             if (extension == ".vrcw")
                 return "application/x-world";
             if (extension == ".vrca")
@@ -312,31 +349,37 @@ namespace Reuploader.VRChatApi {
             return "application/gzip";
         }
 
-        private static string GetFileMD5AsBase64() {
+        private static string GetFileMD5AsBase64()
+        {
             if (_fileAsBytes == null)
                 return string.Empty;
 
             return GetMD5AsBase64FromBytes(_fileAsBytes);
         }
 
-        private static string GetSignatureMD5AsBase64() {
+        private static string GetSignatureMD5AsBase64()
+        {
             if (_sigFileAsBytes == null)
                 return string.Empty;
 
             return GetMD5AsBase64FromBytes(_sigFileAsBytes);
         }
 
-        private static string GetMD5AsBase64FromBytes(byte[] input) {
+        private static string GetMD5AsBase64FromBytes(byte[] input)
+        {
             using var md5 = MD5.Create();
             return Convert.ToBase64String(md5.ComputeHash(input));
         }
 
-        private static int GetLength(byte[] input) {
+        private static int GetLength(byte[] input)
+        {
             return input?.Length ?? -1;
         }
 
-        private static async Task<string> CreateSignatureFile(string fileName) {
-            try {
+        private static async Task<string> CreateSignatureFile(string fileName)
+        {
+            try
+            {
                 //string newFileName = Path.ChangeExtension(fileName, ".sig");
 
                 using var memStream = new MemoryStream(_fileAsBytes);
@@ -355,7 +398,8 @@ namespace Reuploader.VRChatApi {
                 //return newFileName;
                 return Path.ChangeExtension(fileName, ".sig");
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
 
@@ -364,42 +408,50 @@ namespace Reuploader.VRChatApi {
             return string.Empty;
         }
 
-        private static void Reset() {
+        private static void Reset()
+        {
             _fileAsBytes = null;
             _sigFileAsBytes = null;
             _fileMetadata = null;
         }
 
-        private static void ForceGC() {
+        private static void ForceGC()
+        {
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
         }
 
-        public static void Cancel() {
+        public static void Cancel()
+        {
             _cancellationTokenSource.Cancel();
             Thread.Sleep(TimeSpan.FromMilliseconds(250));
             _cancellationTokenSource.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        private static void Cleanup(string fileName = "", string sigFileName = "") {
-            try {
+        private static void Cleanup(string fileName = "", string sigFileName = "")
+        {
+            try
+            {
                 if (!string.IsNullOrEmpty(fileName))
                     if (File.Exists(fileName))
                     {
                         File.Delete(fileName);
                     }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
-            try {
+            try
+            {
                 if (!string.IsNullOrEmpty(sigFileName))
                     if (File.Exists(sigFileName)) { }
-                        File.Delete(sigFileName);
+                File.Delete(sigFileName);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
         }

@@ -11,24 +11,31 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Reuploader.VRChatApi.Models;
+using RipperStoreReuploader;
 
-namespace Reuploader.VRChatApi {
-    public class HttpFactory {
+namespace Reuploader.VRChatApi
+{
+    public class HttpFactory
+    {
         private static readonly HttpMethod _patchMethod = new HttpMethod("PATCH");
         private readonly HttpClient _httpClient;
 
-        public static HttpMethod Patch {
+        public static HttpMethod Patch
+        {
             get => _patchMethod;
         }
 
         public bool DebugHttp { get; set; } = false;
 
-        public HttpFactory(HttpClient httpClient) {
+        public HttpFactory(HttpClient httpClient)
+        {
             _httpClient = httpClient;
         }
 
-        public async Task<TJson> GetAsync<TJson>(string uri, CancellationToken? ct = null) where TJson : class {
-            try {
+        public async Task<TJson> GetAsync<TJson>(string uri, CancellationToken? ct = null) where TJson : class
+        {
+            try
+            {
                 using var response = await _httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
                     Console.WriteLine(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
@@ -39,15 +46,19 @@ namespace Reuploader.VRChatApi {
                 using var streamReader = new StreamReader(contentStream);
                 using var jsonReader = new JsonTextReader(streamReader);
                 return JsonSerializer.Create().Deserialize<TJson>(jsonReader);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task GetWithCallbacksAsync<TJson>(string uri, CancellationToken? ct = null, Action<TJson> onSuccess = null, Action<Exception> onFailure = null) where TJson : class {
-            try {
+        public async Task GetWithCallbacksAsync<TJson>(string uri, CancellationToken? ct = null, Action<TJson> onSuccess = null, Action<Exception> onFailure = null) where TJson : class
+        {
+            try
+            {
                 using var response = await _httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
                     Console.WriteLine(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
@@ -58,32 +69,42 @@ namespace Reuploader.VRChatApi {
                 using var streamReader = new StreamReader(contentStream);
                 using var jsonReader = new JsonTextReader(streamReader);
                 onSuccess?.Invoke(JsonSerializer.Create().Deserialize<TJson>(jsonReader));
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
                 onFailure?.Invoke(e);
             }
         }
 
-        public async Task<HttpResponseMessage> GetResponseAsync(string uri, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken? ct = null) {
-            try {
+        public async Task<HttpResponseMessage> GetResponseAsync(string uri, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken? ct = null)
+        {
+            try
+            {
                 var ret = await _httpClient.GetAsync(uri, completionOption, ct ?? CancellationToken.None).ConfigureAwait(false);
                 return ret;
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task<string> GetStringAsync(string uri, CancellationToken? ct = null) {
-            try {
+        public async Task<string> GetStringAsync(string uri, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var response = await _httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
                     Console.WriteLine(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
                 using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 using var streamReader = new StreamReader(contentStream);
                 return await streamReader.ReadToEndAsync().ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
                 _httpClient.DefaultRequestHeaders.Remove("Content-Type");
             }
@@ -91,8 +112,10 @@ namespace Reuploader.VRChatApi {
             return string.Empty;
         }
 
-        public async Task<TJson> PatchAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null) where TJson : class {
-            try {
+        public async Task<TJson> PatchAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null) where TJson : class
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(Patch, uri) { Content = content };
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -104,15 +127,19 @@ namespace Reuploader.VRChatApi {
                 using var streamReader = new StreamReader(contentStream);
                 using var jsonReader = new JsonTextReader(streamReader);
                 return JsonSerializer.Create().Deserialize<TJson>(jsonReader);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task PatchWithCallbacksAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null, Action<TJson> onSuccess = null, Action<Exception> onFailure = null) where TJson : class {
-            try {
+        public async Task PatchWithCallbacksAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null, Action<TJson> onSuccess = null, Action<Exception> onFailure = null) where TJson : class
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(Patch, uri) { Content = content };
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -124,25 +151,33 @@ namespace Reuploader.VRChatApi {
                 using var streamReader = new StreamReader(contentStream);
                 using var jsonReader = new JsonTextReader(streamReader);
                 onSuccess?.Invoke(JsonSerializer.Create().Deserialize<TJson>(jsonReader));
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
                 onFailure?.Invoke(e);
             }
         }
 
-        public async Task<HttpResponseMessage> PatchResponseAsync(string uri, HttpContent content, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken? ct = null) {
-            try {
+        public async Task<HttpResponseMessage> PatchResponseAsync(string uri, HttpContent content, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(Patch, uri) { Content = content };
                 return await _httpClient.SendAsync(request, completionOption, ct ?? CancellationToken.None).ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task<string> PatchStringAsync(string uri, HttpContent content, CancellationToken? ct = null) {
-            try {
+        public async Task<string> PatchStringAsync(string uri, HttpContent content, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(Patch, uri) { Content = content };
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -150,36 +185,47 @@ namespace Reuploader.VRChatApi {
                 using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 using var streamReader = new StreamReader(contentStream);
                 return await streamReader.ReadToEndAsync().ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return string.Empty;
         }
 
-        public async Task<TJson> PostAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null) where TJson : class {
-            try {
-                using var request = new HttpRequestMessage(HttpMethod.Post, uri) {Content = content};
+        public async Task<TJson> PostAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null) where TJson : class
+        {
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, uri) { Content = content };
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
                     Console.WriteLine(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
                 if (!response.IsSuccessStatusCode)
+                {
                     Console.WriteLine(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+                    Program.isWaiting = false;
+                }
                 response.EnsureSuccessStatusCode();
                 using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 using var streamReader = new StreamReader(contentStream);
                 using var jsonReader = new JsonTextReader(streamReader);
                 return JsonSerializer.Create().Deserialize<TJson>(jsonReader);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
+                Program.isWaiting = false;
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task PostWithCallbacksAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null, Action<TJson> onSuccess = null, Action<Exception> onFailure = null) where TJson : class {
-            try {
+        public async Task PostWithCallbacksAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null, Action<TJson> onSuccess = null, Action<Exception> onFailure = null) where TJson : class
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Post, uri) { Content = content };
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -191,26 +237,33 @@ namespace Reuploader.VRChatApi {
                 using var streamReader = new StreamReader(contentStream);
                 using var jsonReader = new JsonTextReader(streamReader);
                 onSuccess?.Invoke(JsonSerializer.Create().Deserialize<TJson>(jsonReader));
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
                 onFailure?.Invoke(e);
             }
         }
 
-        public async Task<HttpResponseMessage> PostResponseAsync(string uri, HttpContent content, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken? ct = null) {
-            try {
-                using var request = new HttpRequestMessage(HttpMethod.Post, uri) {Content = content};
+        public async Task<HttpResponseMessage> PostResponseAsync(string uri, HttpContent content, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken? ct = null)
+        {
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, uri) { Content = content };
                 return await _httpClient.SendAsync(request, completionOption, ct ?? CancellationToken.None).ConfigureAwait(false);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task<string> PostStringAsync(string uri, HttpContent content, CancellationToken? ct = null) {
-            try {
+        public async Task<string> PostStringAsync(string uri, HttpContent content, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Post, uri) { Content = content };
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -218,15 +271,19 @@ namespace Reuploader.VRChatApi {
                 using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 using var streamReader = new StreamReader(contentStream);
                 return await streamReader.ReadToEndAsync().ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return string.Empty;
         }
 
-        public async Task<(string, EntityTagHeaderValue)> PostStringAndETagAsync(string uri, HttpContent content, CancellationToken? ct = null) {
-            try {
+        public async Task<(string, EntityTagHeaderValue)> PostStringAndETagAsync(string uri, HttpContent content, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Post, uri) { Content = content };
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -234,15 +291,19 @@ namespace Reuploader.VRChatApi {
                 using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 using var streamReader = new StreamReader(contentStream);
                 return (await streamReader.ReadToEndAsync().ConfigureAwait(false), response.Headers.ETag);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return (string.Empty, EntityTagHeaderValue.Any);
         }
 
-        public async Task<TJson> PutAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null) where TJson : class {
-            try {
+        public async Task<TJson> PutAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null) where TJson : class
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Put, uri) { Content = content };
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -254,15 +315,19 @@ namespace Reuploader.VRChatApi {
                 using var streamReader = new StreamReader(contentStream);
                 using var jsonReader = new JsonTextReader(streamReader);
                 return JsonSerializer.Create().Deserialize<TJson>(jsonReader);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task PutWithCallbacksAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null, Action<TJson> onSuccess = null, Action<Exception> onFailure = null) where TJson : class {
-            try {
+        public async Task PutWithCallbacksAsync<TJson>(string uri, HttpContent content, CancellationToken? ct = null, Action<TJson> onSuccess = null, Action<Exception> onFailure = null) where TJson : class
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Put, uri) { Content = content };
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -274,25 +339,33 @@ namespace Reuploader.VRChatApi {
                 using var streamReader = new StreamReader(contentStream);
                 using var jsonReader = new JsonTextReader(streamReader);
                 onSuccess?.Invoke(JsonSerializer.Create().Deserialize<TJson>(jsonReader));
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
                 onFailure?.Invoke(e);
             }
         }
 
-        public async Task<HttpResponseMessage> PutResponseAsync(string uri, HttpContent content, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken? ct = null) {
-            try {
+        public async Task<HttpResponseMessage> PutResponseAsync(string uri, HttpContent content, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Put, uri) { Content = content };
                 return await _httpClient.SendAsync(request, completionOption, ct ?? CancellationToken.None).ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task<string> PutStringAsync(string uri, HttpContent content, HttpClient awsHttpClient = null, CancellationToken? ct = null) {
-            try {
+        public async Task<string> PutStringAsync(string uri, HttpContent content, HttpClient awsHttpClient = null, CancellationToken? ct = null)
+        {
+            try
+            {
                 awsHttpClient ??= _httpClient;
                 ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
                 using var request = new HttpRequestMessage(HttpMethod.Put, uri) { Content = content };
@@ -302,15 +375,19 @@ namespace Reuploader.VRChatApi {
                 using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 using var streamReader = new StreamReader(contentStream);
                 return await streamReader.ReadToEndAsync().ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return string.Empty;
         }
 
-        public async Task<(string, EntityTagHeaderValue)> PutStringAndETagAsync(string uri, HttpContent content, HttpClient awsHttpClient = null, CancellationToken? ct = null) {
-            try {
+        public async Task<(string, EntityTagHeaderValue)> PutStringAndETagAsync(string uri, HttpContent content, HttpClient awsHttpClient = null, CancellationToken? ct = null)
+        {
+            try
+            {
                 awsHttpClient ??= _httpClient;
                 ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
                 using var request = new HttpRequestMessage(HttpMethod.Put, uri) { Content = content };
@@ -320,15 +397,19 @@ namespace Reuploader.VRChatApi {
                 using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 using var streamReader = new StreamReader(contentStream);
                 return (await streamReader.ReadToEndAsync().ConfigureAwait(false), response.Headers.ETag);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return (string.Empty, EntityTagHeaderValue.Any);
         }
 
-        public async Task<TJson> DeleteAsync<TJson>(string uri, CancellationToken? ct = null) where TJson : class {
-            try {
+        public async Task<TJson> DeleteAsync<TJson>(string uri, CancellationToken? ct = null) where TJson : class
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Delete, uri);
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -341,15 +422,18 @@ namespace Reuploader.VRChatApi {
                 using var jsonReader = new JsonTextReader(streamReader);
                 return JsonSerializer.Create().Deserialize<TJson>(jsonReader);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task DeleteWithCallbacksAsync<TJson>(string uri, CancellationToken? ct = null, Action<TJson> onSuccess = null, Action<Exception> onFailure = null) where TJson : class {
-            try {
+        public async Task DeleteWithCallbacksAsync<TJson>(string uri, CancellationToken? ct = null, Action<TJson> onSuccess = null, Action<Exception> onFailure = null) where TJson : class
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Delete, uri);
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -361,25 +445,33 @@ namespace Reuploader.VRChatApi {
                 using var streamReader = new StreamReader(contentStream);
                 using var jsonReader = new JsonTextReader(streamReader);
                 onSuccess?.Invoke(JsonSerializer.Create().Deserialize<TJson>(jsonReader));
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
                 onFailure?.Invoke(e);
             }
         }
 
-        public async Task<HttpResponseMessage> DeleteResponseAsync(string uri, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken? ct = null) {
-            try {
+        public async Task<HttpResponseMessage> DeleteResponseAsync(string uri, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Delete, uri);
                 return await _httpClient.SendAsync(request, completionOption, ct ?? CancellationToken.None).ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task<string> DeleteStringAsync(string uri, CancellationToken? ct = null) {
-            try {
+        public async Task<string> DeleteStringAsync(string uri, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Delete, uri);
                 using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
                 if (DebugHttp)
@@ -387,48 +479,64 @@ namespace Reuploader.VRChatApi {
                 using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 using var streamReader = new StreamReader(contentStream);
                 return await streamReader.ReadToEndAsync().ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return string.Empty;
         }
 
-        public async Task<HttpResponseMessage> HeadResponseAsync(string uri, CancellationToken? ct = null) {
-            try {
+        public async Task<HttpResponseMessage> HeadResponseAsync(string uri, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Head, uri);
                 return await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task<HttpResponseMessage> OptionsResponseAsync(string uri, CancellationToken? ct = null) {
-            try {
+        public async Task<HttpResponseMessage> OptionsResponseAsync(string uri, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Options, uri);
                 return await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task<HttpResponseMessage> TraceResponseAsync(string uri, CancellationToken? ct = null) {
-            try {
+        public async Task<HttpResponseMessage> TraceResponseAsync(string uri, CancellationToken? ct = null)
+        {
+            try
+            {
                 using var request = new HttpRequestMessage(HttpMethod.Trace, uri);
                 return await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task<byte[]> DownloadAsync(string uri, CancellationToken? ct = null, IProgress<double> progress = null) {
-            try {
+        public async Task<byte[]> DownloadAsync(string uri, CancellationToken? ct = null, IProgress<double> progress = null)
+        {
+            try
+            {
                 using var response = (await _httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false)).EnsureSuccessStatusCode();
                 var contentLength = response.Content.Headers.ContentLength;
                 using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
@@ -437,7 +545,8 @@ namespace Reuploader.VRChatApi {
                 var buffer = new byte[bufferSize];
                 long read = 0;
                 int chunk = 0;
-                while ((chunk = await contentStream.ReadAsync(buffer, 0, buffer.Length, ct ?? CancellationToken.None).ConfigureAwait(false)) > 0) {
+                while ((chunk = await contentStream.ReadAsync(buffer, 0, buffer.Length, ct ?? CancellationToken.None).ConfigureAwait(false)) > 0)
+                {
                     read += chunk;
 
                     if (progress != null && contentLength.HasValue)
@@ -450,15 +559,19 @@ namespace Reuploader.VRChatApi {
                     progress.Report(Math.Round((double)read / contentLength.Value * 100, 2));
 
                 return contentLength.HasValue ? memoryStream.GetBuffer() : memoryStream.ToArray();
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return null;
         }
 
-        public async Task<string> DownloadToRandomPathAsync(string uri, CancellationToken? ct = null, IProgress<double> progress = null) {
-            try {
+        public async Task<string> DownloadToRandomPathAsync(string uri, CancellationToken? ct = null, IProgress<double> progress = null)
+        {
+            try
+            {
                 using var response = (await _httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, ct ?? CancellationToken.None).ConfigureAwait(false)).EnsureSuccessStatusCode();
                 var contentHeaders = response.Content.Headers;
                 var contentLength = contentHeaders.ContentLength;
@@ -470,7 +583,8 @@ namespace Reuploader.VRChatApi {
                 var buffer = new byte[bufferSize];
                 long read = 0;
                 int chunk = 0;
-                while ((chunk = await contentStream.ReadAsync(buffer, 0, buffer.Length, ct ?? CancellationToken.None).ConfigureAwait(false)) > 0) {
+                while ((chunk = await contentStream.ReadAsync(buffer, 0, buffer.Length, ct ?? CancellationToken.None).ConfigureAwait(false)) > 0)
+                {
                     read += chunk;
 
                     if (progress != null && contentLength.HasValue)
@@ -483,14 +597,17 @@ namespace Reuploader.VRChatApi {
                     progress.Report(Math.Round((double)read / contentLength.Value * 100, 2));
 
                 return path;
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e);
             }
 
             return string.Empty;
         }
 
-        private static string GetExtensionFromMimetype(string mimeType) {
+        private static string GetExtensionFromMimetype(string mimeType)
+        {
             mimeType = mimeType.ToLower();
             if (mimeType == "application/x-world")
                 return ".vrcw";
@@ -520,18 +637,21 @@ namespace Reuploader.VRChatApi {
         }
     }
 
-    public class ProgressableByteArrayContent : HttpContent {
+    public class ProgressableByteArrayContent : HttpContent
+    {
         private byte[] _content;
         private int _offset;
         private int _count;
         private IProgress<double> _progress;
         private int _chunkSize;
 
-        public ProgressableByteArrayContent(byte[] content, IProgress<double> progress, int chunkSize = 131072) : this(content, 0, content.Length, progress, chunkSize) {
+        public ProgressableByteArrayContent(byte[] content, IProgress<double> progress, int chunkSize = 131072) : this(content, 0, content.Length, progress, chunkSize)
+        {
 
         }
 
-        public ProgressableByteArrayContent(byte[] content, int offset, int count, IProgress<double> progress, int chunkSize = 131072) {
+        public ProgressableByteArrayContent(byte[] content, int offset, int count, IProgress<double> progress, int chunkSize = 131072)
+        {
             _content = content;
             _offset = offset;
             _count = count;
@@ -539,13 +659,16 @@ namespace Reuploader.VRChatApi {
             _chunkSize = ChangeChunkSizeIfNecessary(chunkSize);
         }
 
-        private int ChangeChunkSizeIfNecessary(int chunkSize) {
+        private int ChangeChunkSizeIfNecessary(int chunkSize)
+        {
             return _count < chunkSize ? _count : chunkSize;
         }
 
-        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context) {
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
+        {
             long written = 0;
-            for (int i = 0; i < _content.Length; i += _chunkSize) {
+            for (int i = 0; i < _content.Length; i += _chunkSize)
+            {
                 int count = Math.Min(_chunkSize, _content.Length - i);
 
                 written += count;
@@ -558,24 +681,28 @@ namespace Reuploader.VRChatApi {
             _progress.Report(Math.Round((double)written / _count * 100, 2));
         }
 
-        protected override bool TryComputeLength(out long length) {
+        protected override bool TryComputeLength(out long length)
+        {
             length = _count;
             return true;
         }
 
-        protected override Task<Stream> CreateContentReadStreamAsync() {
-            return Task.FromResult<Stream>((Stream) new MemoryStream(_content, _offset, _count, false, false));
+        protected override Task<Stream> CreateContentReadStreamAsync()
+        {
+            return Task.FromResult<Stream>((Stream)new MemoryStream(_content, _offset, _count, false, false));
         }
     }
 
-    public class ProgressableStreamContent : HttpContent {
+    public class ProgressableStreamContent : HttpContent
+    {
         private Stream _content;
         private long _start;
         private IProgress<double> _progress;
         private int _chunkSize;
         private bool _contentConsumed = false;
 
-        public ProgressableStreamContent(Stream content, IProgress<double> progress, int chunkSize = 131072) {
+        public ProgressableStreamContent(Stream content, IProgress<double> progress, int chunkSize = 131072)
+        {
             _content = content;
             if (_content.CanSeek)
                 _start = _content.Position;
@@ -583,33 +710,39 @@ namespace Reuploader.VRChatApi {
             _chunkSize = chunkSize;
         }
 
-        private int ChangeChunkSizeIfNecessary(int chunkSize) {
+        private int ChangeChunkSizeIfNecessary(int chunkSize)
+        {
             return _content.Length < chunkSize ? (int)_content.Length : chunkSize;
         }
 
-        private void PrepareContent() {
+        private void PrepareContent()
+        {
             if (_contentConsumed)
                 if (!_content.CanSeek)
                     _content.Position = _start;
             _contentConsumed = true;
         }
 
-        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context) {
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
+        {
             PrepareContent();
             var buffer = new byte[_chunkSize];
             long written = 0;
             int chunk = 0;
-            while ((chunk = await _content.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) > 0) {
+            while ((chunk = await _content.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) > 0)
+            {
                 written += chunk;
 
                 _progress.Report(Math.Round((double)written / _content.Length * 100, 2));
-                
+
                 await stream.WriteAsync(buffer, 0, chunk).ConfigureAwait(false);
             }
         }
 
-        protected override bool TryComputeLength(out long length) {
-            if (_content.CanSeek) {
+        protected override bool TryComputeLength(out long length)
+        {
+            if (_content.CanSeek)
+            {
                 length = _content.Length - _start;
                 return true;
             }
@@ -617,42 +750,53 @@ namespace Reuploader.VRChatApi {
             return false;
         }
 
-        protected override Task<Stream> CreateContentReadStreamAsync() {
+        protected override Task<Stream> CreateContentReadStreamAsync()
+        {
             return Task.FromResult<Stream>(_content);
         }
     }
 
-    public class ProgressableStringContent : ProgressableByteArrayContent {
+    public class ProgressableStringContent : ProgressableByteArrayContent
+    {
         private const string _defaultMediaType = "text/plain";
 
-        public ProgressableStringContent(string content, IProgress<double> progress) : this(content, null, progress){
-            
-        }
-
-        public ProgressableStringContent(string content, Encoding encoding, IProgress<double> progress) : this(content, encoding, null, progress) {
+        public ProgressableStringContent(string content, IProgress<double> progress) : this(content, null, progress)
+        {
 
         }
 
-        public ProgressableStringContent(string content, Encoding encoding, string mediaType, IProgress<double> progress) : base(GetContentByteArray(content, encoding), progress) {
-            Headers.ContentType = new MediaTypeHeaderValue(string.IsNullOrEmpty(mediaType) ? _defaultMediaType : mediaType) {
+        public ProgressableStringContent(string content, Encoding encoding, IProgress<double> progress) : this(content, encoding, null, progress)
+        {
+
+        }
+
+        public ProgressableStringContent(string content, Encoding encoding, string mediaType, IProgress<double> progress) : base(GetContentByteArray(content, encoding), progress)
+        {
+            Headers.ContentType = new MediaTypeHeaderValue(string.IsNullOrEmpty(mediaType) ? _defaultMediaType : mediaType)
+            {
                 CharSet = encoding == null ? Encoding.UTF8.WebName : encoding.WebName
             };
         }
 
-        private static byte[] GetContentByteArray(string content, Encoding encoding) {
+        private static byte[] GetContentByteArray(string content, Encoding encoding)
+        {
             encoding ??= Encoding.UTF8;
             return encoding.GetBytes(content);
         }
     }
 
-    public class ProgressableJsonContent : ProgressableStringContent {
-        public ProgressableJsonContent(string content, IProgress<double> progress) : base(content, Encoding.UTF8, "application/json", progress) {
+    public class ProgressableJsonContent : ProgressableStringContent
+    {
+        public ProgressableJsonContent(string content, IProgress<double> progress) : base(content, Encoding.UTF8, "application/json", progress)
+        {
 
         }
     }
 
-    public class JsonContent : StringContent {
-        public JsonContent(string content) : base(content, Encoding.UTF8, "application/json") {
+    public class JsonContent : StringContent
+    {
+        public JsonContent(string content) : base(content, Encoding.UTF8, "application/json")
+        {
 
         }
     }

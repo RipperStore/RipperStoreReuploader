@@ -151,8 +151,7 @@ namespace Reuploader.VRChatApi.Models {
             var uploadProgressPercents = new HashSet<int>(10);
             void OnUploadProgress(double value) {
                 int val = RoundOff(value);
-                if (uploadProgressPercents.Add(val))
-                    Console.WriteLine($"> (SP) Upload progress: {val}%");
+                //if (uploadProgressPercents.Add(val))Console.WriteLine($"> (SP) Upload progress: {val}%");
             }
 
             //var content = new ByteArrayContent(data);
@@ -168,8 +167,7 @@ namespace Reuploader.VRChatApi.Models {
             var uploadProgressPercents = new HashSet<int>(10);
             void OnUploadProgress(double value) {
                 int val = RoundOff(value);
-                if (uploadProgressPercents.Add(val))
-                    Console.WriteLine($"> (SP) Upload progress: {val}%");
+                //if (uploadProgressPercents.Add(val)) Console.WriteLine($"> (SP) Upload progress: {val}%");
             }
 
             //var content = new ByteArrayContent(data);

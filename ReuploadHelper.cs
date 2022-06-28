@@ -25,6 +25,11 @@ namespace RipperStoreReuploader
 
         internal static async Task ReUploadAvatarAsync(string Name, string AssetPath, string ImagePath, string avatarId)
         {
+            RipperStoreReuploader.Program.isWaiting = true;
+
+            Console.WriteLine($"{Misc.Functions.prefix}uploading Avatar..");
+            new Task(() => { Misc.Functions.LoadingBar(20); }).Start();
+
             ApiAvatar avatar = new ApiAvatar();
             var avatarFile = new AvatarObjectStore(apiClient, UnityVersion, AssetPath);
             await avatarFile.Reupload().ConfigureAwait(false);
@@ -59,16 +64,19 @@ namespace RipperStoreReuploader
             }.Post().ConfigureAwait(false);
             if (newAvatar == null)
             {
+                RipperStoreReuploader.Program.isWaiting = false;
                 Console.WriteLine("Avatar upload failed");
                 return;
             }
             var tempUnityPackage = newAvatar.UnityPackages.FirstOrDefault(u => u.Platform == "standalonewindows");
             if (tempUnityPackage == null)
             {
+                RipperStoreReuploader.Program.isWaiting = false;
                 Console.WriteLine("Unable to get unity package from response");
                 return;
             }
 
+            RipperStoreReuploader.Program.isWaiting = false;
             Console.WriteLine($"{Misc.Functions.prefix}successfully upload Avatar: {newAvatar.Name}");
             Misc.Functions.Close();
         }
