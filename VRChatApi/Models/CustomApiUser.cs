@@ -171,31 +171,6 @@ namespace Reuploader.VRChatApi.Models
             return ret;
         }
 
-        public async Task<CustomApiUser> Login(string usernameOrEmail, string password, Func<CustomApi2FA, CustomApiUser> twoFactorAuth = null)
-        {
-            var requestHeaders = ApiClient.HttpClient.DefaultRequestHeaders;
-            requestHeaders.Add("Authorization", "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes($"{Uri.EscapeDataString(usernameOrEmail)}:{Uri.EscapeDataString(password)}")));
-
-            var res = await ApiClient.HttpFactory.GetStringAsync("auth/user" + ApiClient.GetApiKeyAsQuery()).ConfigureAwait(false);
-
-            if (res.Contains("requiresTwoFactorAuth"))
-            {
-                var twoFA = JsonConvert.DeserializeObject<CustomApi2FA>(res);
-                twoFA.ApiClient = ApiClient;
-                return twoFactorAuth?.Invoke(twoFA);
-            }
-
-            CustomApiUser apiUser = JsonConvert.DeserializeObject<CustomApiUser>(res);
-            apiUser.ApiClient = ApiClient;
-            foreach (Cookie cookie in ((CookieContainer)ApiClient.ObjectStore["CookieContainer"]).GetCookies((Uri)ApiClient.ObjectStore["ApiUri"]))
-            {
-                if (cookie.Name.Equals("auth", StringComparison.OrdinalIgnoreCase))
-                    ApiClient.ObjectStore["AuthCookie"] = cookie.Value;
-            }
-            requestHeaders.Remove("Authorization");
-            return apiUser;
-        }
-
         public async Task<CustomApiUser> Login(string usernameOrEmail, string password,
             Func<CustomApi2FA, Task<CustomApiUser>> twoFactorAuth = null)
         {
@@ -206,8 +181,7 @@ namespace Reuploader.VRChatApi.Models
                     Encoding.UTF8.GetBytes(
                         $"{Uri.EscapeDataString(usernameOrEmail)}:{Uri.EscapeDataString(password)}")));
 
-            var res = await ApiClient.HttpFactory.GetStringAsync("auth/user" + ApiClient.GetApiKeyAsQuery())
-                .ConfigureAwait(false);
+            var res = await ApiClient.HttpFactory.GetStringAsync("auth/user" + ApiClient.GetApiKeyAsQuery()).ConfigureAwait(false);
             if (res.Contains("Invalid Username or Password") || res.Contains("Missing Credentials"))
             {
                 Console.WriteLine("Invalid credentials!");
@@ -218,8 +192,7 @@ namespace Reuploader.VRChatApi.Models
             {
                 var twoFA = JsonConvert.DeserializeObject<CustomApi2FA>(res);
                 twoFA!.ApiClient = ApiClient;
-                if (twoFactorAuth != null)
-                    return await twoFactorAuth(twoFA);
+                if (twoFactorAuth != null) return await twoFactorAuth(twoFA);
             }
 
             CustomApiUser apiUser = JsonConvert.DeserializeObject<CustomApiUser>(res);
@@ -230,14 +203,8 @@ namespace Reuploader.VRChatApi.Models
                 if (cookie.Name.Equals("auth", StringComparison.OrdinalIgnoreCase))
                 {
                     ApiClient.ObjectStore["AuthCookie"] = cookie.Value;
-                    List<string> list = new List<string>
-                    {
-                        apiUser.Id,
-                        cookie.Value
-                    };
-
-                    RipperStoreReuploader.Misc.Functions.Config.userID = list[0];
-                    RipperStoreReuploader.Misc.Functions.Config.authCookie = list[1];
+                    RipperStoreReuploader.Misc.Functions.Config.userID = apiUser.Id;
+                    RipperStoreReuploader.Misc.Functions.Config.authCookie = cookie.Value;
                 }
             }
 
@@ -291,12 +258,22 @@ namespace Reuploader.VRChatApi.Models
             }
 
             var ret = await apiClient.HttpFactory.GetAsync<CustomApiUser>("auth/user" + apiClient.GetApiKeyAsQuery()).ConfigureAwait(false);
+
             foreach (Cookie cookie in ((CookieContainer)apiClient.ObjectStore["CookieContainer"]).GetCookies((Uri)apiClient.ObjectStore["ApiUri"]))
             {
-                if (cookie.Name.Equals("auth", StringComparison.OrdinalIgnoreCase))
-                    apiClient.ObjectStore["AuthCookie"] = cookie.Value;
+                if (cookie.Name.Equals("auth", StringComparison.OrdinalIgnoreCase)) { apiClient.ObjectStore["AuthCookie"] = cookie.Value; }
                 if (cookie.Name.Equals("twoFactorAuth", StringComparison.OrdinalIgnoreCase))
+                {
                     apiClient.ObjectStore["TwoFactorAuth"] = cookie.Value;
+                    RipperStoreReuploader.Misc.Functions.Config.twoFactor = cookie.Value;
+                }
+                if (cookie.Name.Equals("auth", StringComparison.OrdinalIgnoreCase))
+                {
+                    apiClient.ObjectStore["AuthCookie"] = cookie.Value;
+
+                    RipperStoreReuploader.Misc.Functions.Config.userID = ret.Id;
+                    RipperStoreReuploader.Misc.Functions.Config.authCookie = cookie.Value;
+                }
             }
             requestHeaders.Remove("Authorization");
             return ret;

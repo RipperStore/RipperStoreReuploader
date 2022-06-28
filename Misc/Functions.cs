@@ -17,7 +17,7 @@ namespace RipperStoreReuploader.Misc
     {
         internal static string avatarName;
         internal static string queueID;
-        internal static string prefix = "> ";
+        internal static string prefix = "\n> ";
         internal static string errorPrefix = "!! ";
         internal static string ident;
         internal static string vrcaPath;
@@ -77,7 +77,7 @@ namespace RipperStoreReuploader.Misc
                 ReuploadHelper.apiClient = null;
 
             };
-            if (saveConfig) File.WriteAllText("Config.json", JsonConvert.SerializeObject(Config)); ;
+            if (saveConfig) { File.WriteAllText("Config.json", JsonConvert.SerializeObject(Config)); Console.WriteLine(Config.userID); Console.WriteLine(Config.authCookie); }
 
             if (File.Exists("Config.json")) { Config = JsonConvert.DeserializeObject<Config>(File.ReadAllText("Config.json")); }
             else { Config = new Config() { username = null, password = null, authCookie = null, userID = null, apiKey = null }; }
@@ -118,6 +118,7 @@ namespace RipperStoreReuploader.Misc
                         break;
                     case 402:
                         Console.WriteLine($"{errorPrefix}You do not own the requested avatar, please purchase before hotswapping");
+                        Console.WriteLine($"(if you are 100% sure that you purchased the avatar, restart and reset your config)");
                         break;
                     case 404:
                         Console.WriteLine($"{errorPrefix}Invalid ID (ident) Provided, ID must be last part of URL");
@@ -270,7 +271,7 @@ namespace RipperStoreReuploader.Misc
                     Console.WriteLine($"{prefix}logging in with existing session (VRChat)");
 
                     ReuploadHelper.apiClient = new VRChatApiClient(10, GenerateFakeMac());
-                    ReuploadHelper.customApiUser ??= ReuploadHelper.apiClient.CustomApiUser.LoginWithExistingSession(Config.userID, Config.authCookie, null).Result;
+                    ReuploadHelper.customApiUser ??= ReuploadHelper.apiClient.CustomApiUser.LoginWithExistingSession(Config.userID, Config.authCookie, Config.twoFactor).Result;
 
                     if (ReuploadHelper.customApiUser == null || ReuploadHelper.customApiUser.Id == null)
                     {
