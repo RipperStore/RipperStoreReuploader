@@ -6,6 +6,6 @@ Should only be used for uploading Avatars from RipperStore
 
 If you encounter any issues, please contact me via Discord. CodeAngel#5295
 
-[Download Latest Version](https://github.com/CodeAngel3/RipperStoreReuploader/releases/latest/download/RipperStoreReuploader.exe)
+[Download Latest Version](https://github.com/RipperStore/RipperStoreReuploader/releases/latest/download/RipperStoreReuploader.exe)
 
-[![Github All Releases](https://img.shields.io/github/downloads/CodeAngel3/RipperStoreReuploader/total.svg)]()
+[![Github All Releases](https://img.shields.io/github/downloads/RipperStore/RipperStoreReuploader/total.svg)]()
