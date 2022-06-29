@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("RipperStoreReuploader")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Avatar Reuploader")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("RipperStore")]
 [assembly: AssemblyProduct("RipperStoreReuploader")]
 [assembly: AssemblyCopyright("Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("1de6ce00-ee3b-47de-83bb-999bd6eaeabf")]
+[assembly: Guid("3fff7d72-40be-4c00-9056-592dab43c395")]
 
 // Version information for an assembly consists of the following four values:
 //
