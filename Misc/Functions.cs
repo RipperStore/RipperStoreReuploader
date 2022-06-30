@@ -83,7 +83,7 @@ namespace RipperStoreReuploader.Misc
                 ReuploadHelper.apiClient = null;
 
             };
-            if (saveConfig) { File.WriteAllText(configPath, JsonConvert.SerializeObject(Config)); Console.WriteLine(Config.userID); Console.WriteLine(Config.authCookie); }
+            if (saveConfig) { File.WriteAllText(configPath, JsonConvert.SerializeObject(Config));}
 
             if (File.Exists(configPath)) { Config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(configPath)); }
             else { Config = new Config() { username = null, password = null, authCookie = null, userID = null, apiKey = null }; }
